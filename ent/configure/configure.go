@@ -43,7 +43,7 @@ type Key string
 
 // Key values.
 const (
-	KeyWorkitemConfigure Key = "workitem_configure"
+	KeyYunxiao Key = "yunxiao"
 )
 
 func (k Key) String() string {
@@ -53,7 +53,7 @@ func (k Key) String() string {
 // KeyValidator is a validator for the "key" field enum values. It is called by the builders before save.
 func KeyValidator(k Key) error {
 	switch k {
-	case KeyWorkitemConfigure:
+	case KeyYunxiao:
 		return nil
 	default:
 		return fmt.Errorf("configure: invalid enum value for key field: %q", k)

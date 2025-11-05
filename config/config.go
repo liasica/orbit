@@ -41,11 +41,16 @@ type PingCode struct {
 }
 
 type Yunxiao struct {
+	Debug           bool
 	AccessKeyId     string
 	AccessKeySecret string
-	Endpoint        string
 	OrganizationId  string
 	ProjectId       string
+	Domain          string
+	Token           string
+	WorkitemTypes   map[string]string // key: workitem category, value: typeId
+	WorkitemFields  map[string]string // key: workitem field, value: name
+	WorkflowNames   map[string]string // key: workflow status, value: name
 }
 
 // Setup 读取并解析配置文件

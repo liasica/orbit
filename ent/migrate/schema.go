@@ -12,7 +12,7 @@ var (
 	// ConfigureColumns holds the columns for the "configure" table.
 	ConfigureColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "key", Type: field.TypeEnum, Comment: "配置键", Enums: []string{"workitem_configure"}},
+		{Name: "key", Type: field.TypeEnum, Comment: "配置键", Enums: []string{"yunxiao"}},
 		{Name: "data", Type: field.TypeJSON, Comment: "配置值"},
 	}
 	// ConfigureTable holds the schema information for the "configure" table.

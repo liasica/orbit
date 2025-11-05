@@ -17,36 +17,36 @@ import (
 )
 
 var (
-	workitemGroup = &cobra.Group{
-		ID:    "yunxiao-workitem",
-		Title: "云效 Workitem 指令",
+	configureGroup = &cobra.Group{
+		ID:    "yunxiao-configure",
+		Title: "云效配置指令",
 	}
 
-	workitemCmd = &cobra.Command{
-		Use:               "workitem",
-		Short:             "云效 workitem 相关指令",
-		GroupID:           workitemGroup.ID,
+	configureCmd = &cobra.Command{
+		Use:               "configure",
+		Short:             "云效配置相关指令",
+		GroupID:           configureGroup.ID,
 		CompletionOptions: cobra.CompletionOptions{DisableDefaultCmd: true},
 	}
 )
 
 func init() {
-	workitemCmd.AddCommand(workitemUpgradeCmd())
+	configureCmd.AddCommand(configureUpdateCmd())
 }
 
-func workitemUpgradeCmd() (cmd *cobra.Command) {
+func configureUpdateCmd() (cmd *cobra.Command) {
 	cmd = &cobra.Command{
-		Use:               "upgrade",
-		Short:             "更新 workitem 配置",
+		Use:               "update",
+		Short:             "更新配置",
 		CompletionOptions: cobra.CompletionOptions{DisableDefaultCmd: true},
-		Run:               doWorkitemUpgrade,
+		Run:               doConfigureUpdate,
 	}
 	return
 }
 
-func doWorkitemUpgrade(_ *cobra.Command, _ []string) {
+func doConfigureUpdate(_ *cobra.Command, _ []string) {
 	now := time.Now()
-	log.Info().Msg("开始更新云效 Workitem 配置...")
+	log.Info().Msg("开始更新云效配置...")
 
 	data, err := yunxiao.GetConfigure()
 	if err != nil {
@@ -63,5 +63,5 @@ func doWorkitemUpgrade(_ *cobra.Command, _ []string) {
 		log.Fatal().Err(err)
 	}
 
-	log.Info().Msg("云效 Workitem 配置更新完成，耗时: " + time.Since(now).String())
+	log.Info().Msg("云效配置更新完成，耗时: " + time.Since(now).String())
 }

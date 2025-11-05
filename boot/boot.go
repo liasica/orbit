@@ -16,6 +16,7 @@ import (
 	"github.com/liasica/orbit/ent"
 	"github.com/liasica/orbit/ent/configure"
 	"github.com/liasica/orbit/integration/yunxiao"
+	"github.com/liasica/orbit/integration/yunxiao/entity"
 	"github.com/liasica/orbit/repository"
 )
 
@@ -42,25 +43,19 @@ func Bootstrap(cfgPath string) {
 
 	// 初始化云效集成配置
 	yunxiao.Setup(
-		&yunxiao.Config{
-			AccessKeyId:     config.Get().Yunxiao.AccessKeyId,
-			AccessKeySecret: config.Get().Yunxiao.AccessKeySecret,
-			Endpoint:        config.Get().Yunxiao.Endpoint,
-			OrganizationId:  config.Get().Yunxiao.OrganizationId,
-			ProjectId:       config.Get().Yunxiao.ProjectId,
-		},
-		func() (*yunxiao.WorkitemConfigure, error) {
-			data, err := repository.NewConfigure().GetValue(configure.KeyWorkitemConfigure)
+		func() (entity.ConfigureMap, error) {
+			data, err := repository.NewConfigure().GetValue(configure.KeyYunxiao)
 			if err != nil {
 				return nil, err
 			}
-			var cfg yunxiao.WorkitemConfigure
+
+			cfg := make(entity.ConfigureMap)
 			err = sonic.Unmarshal(data, &cfg)
 			if err != nil {
 				return nil, err
 			}
 
-			return &cfg, nil
+			return cfg, nil
 		},
 	)
 
