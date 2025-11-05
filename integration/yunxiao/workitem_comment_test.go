@@ -18,7 +18,7 @@ func TestDoCreateWorkitemCommentOption(t *testing.T) {
 	require.NoError(t, err)
 	require.NotNil(t, data)
 
-	req = NewCreateWorkitemCommentRequest("DAUR-316", "```go\nstr := \"test\"\n```", CreateWorkitemCommentWithFormatType(CommentFormatTypeMarkdown))
+	req = NewCreateWorkitemCommentRequest("DAUR-317", "```go\nstr := \"test\"\n```", CreateWorkitemCommentWithFormatType(CommentFormatTypeMarkdown))
 	data, err = req.Do()
 	require.NoError(t, err)
 	require.NotNil(t, data)

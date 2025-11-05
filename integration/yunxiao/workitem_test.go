@@ -5,39 +5,65 @@
 package yunxiao
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/require"
+
+	"github.com/liasica/orbit/integration/yunxiao/entity"
 )
 
-func BenchmarkWorkitemConfigureGetterYaml(b *testing.B) {
-	for i := 0; i < b.N; i++ {
-		_, _ = testWorkitemConfigureYamlParser()
-	}
-}
-
-func BenchmarkWorkitemConfigureJsonParser(b *testing.B) {
-	for i := 0; i < b.N; i++ {
-		_, _ = testWorkitemConfigureJsonParser()
-	}
-}
-
-func TestTestWorkitemConfigureYamlParser(t *testing.T) {
-	c, err := testWorkitemConfigureYamlParser()
-	require.NoError(t, err)
-	fmt.Printf("%#v\n", c)
-}
-
-func TestTestWorkitemConfigureJsonParser(t *testing.T) {
-	c, err := testWorkitemConfigureJsonParser()
-	require.NoError(t, err)
-	fmt.Printf("%#v\n", c)
-}
-
-func TestGetWorkitemConfigure(t *testing.T) {
+func TestListWorkitemTypes(t *testing.T) {
 	testSetup()
 
-	c := GetWorkitemConfigure()
-	require.NotNil(t, c)
+	data, err := ListWorkitemTypes(entity.WorkitemCategoryBug)
+	require.NoError(t, err)
+	require.NotEmpty(t, data)
+}
+
+func TestListAllWorkitemTypes(t *testing.T) {
+	testSetup()
+
+	data, err := ListAllWorkitemTypes()
+	require.NoError(t, err)
+	require.NotEmpty(t, data)
+}
+
+func TestGetWorkitemTypeFieldConfig(t *testing.T) {
+	testSetup()
+
+	data, err := GetWorkitemTypeFieldConfig("37da3a07df4d08aef2e3b393")
+	require.NoError(t, err)
+	require.NotEmpty(t, data)
+}
+
+func TestGetWorkitemWorkflow(t *testing.T) {
+	testSetup()
+
+	data, err := GetWorkitemWorkflow("37da3a07df4d08aef2e3b393")
+	require.NoError(t, err)
+	require.NotEmpty(t, data)
+}
+
+func TestGetWorkitem(t *testing.T) {
+	testSetup()
+
+	data, err := GetWorkitem("DAUR-317")
+	require.NoError(t, err)
+	require.NotNil(t, data)
+}
+
+func TestCreateWorkitemComment(t *testing.T) {
+	testSetup()
+
+	err := CreateWorkitemComment("DAUR-317", "")
+	require.NoError(t, err)
+}
+
+func TestUpdateWorkitem(t *testing.T) {
+	testSetup()
+
+	err := UpdateWorkitem("DAUR-317", map[string]string{
+		entity.WorkitemStatusKey: "100010",
+	})
+	require.NoError(t, err)
 }

@@ -48,12 +48,17 @@ func doWorkitemUpgrade(_ *cobra.Command, _ []string) {
 	now := time.Now()
 	log.Info().Msg("开始更新云效 Workitem 配置...")
 
-	data := yunxiao.GetWorkitemConfigure()
-	b, err := sonic.Marshal(data)
+	data, err := yunxiao.GetConfigure()
 	if err != nil {
 		log.Fatal().Err(err)
 	}
-	err = repository.NewConfigure().SetValue(configure.KeyWorkitemConfigure, b)
+
+	var b []byte
+	b, err = sonic.Marshal(data)
+	if err != nil {
+		log.Fatal().Err(err)
+	}
+	err = repository.NewConfigure().SetValue(configure.KeyYunxiao, b)
 	if err != nil {
 		log.Fatal().Err(err)
 	}

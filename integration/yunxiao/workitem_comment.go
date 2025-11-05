@@ -67,17 +67,14 @@ func (req *CreateWorkitemCommentRequest) Do() (*devops.CreateWorkitemCommentResp
 	if IsWorkitemIdentifier(req.identifier) {
 		req.params.WorkitemIdentifier = &req.identifier
 	} else {
-		data, err := NewGetWorkitemInfoRequest(req.identifier).Do()
+		data, err := GetWorkitem(req.identifier)
 		if err != nil {
 			return nil, fmt.Errorf("转换 workitemIdentifier 失败: %w", err)
 		}
-		if data.Workitem.Identifier == nil {
-			return nil, fmt.Errorf("获取到的 workitem 信息中 workitemIdentifier 为空")
-		}
-		req.params.WorkitemIdentifier = data.Workitem.Identifier
+		req.params.WorkitemIdentifier = &data.ID
 	}
 
-	res, err := instance.client.CreateWorkitemComment(&instance.config.OrganizationId, &req.params)
+	res, err := instance.sdk.CreateWorkitemComment(&instance.organizationId, &req.params)
 	if err != nil {
 		return nil, err
 	}

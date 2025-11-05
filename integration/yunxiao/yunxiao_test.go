@@ -8,28 +8,12 @@ import (
 	"os"
 	"time"
 
-	"github.com/bytedance/sonic"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
-	"sigs.k8s.io/yaml"
 
 	"github.com/liasica/orbit/config"
 	"github.com/liasica/orbit/ent"
 )
-
-func testWorkitemConfigureYamlParser() (c *WorkitemConfigure, err error) {
-	c = new(WorkitemConfigure)
-	b, _ := os.ReadFile("../../configs/yunxiao_workitem_configure.yaml")
-	_ = yaml.Unmarshal(b, c)
-	return c, nil
-}
-
-func testWorkitemConfigureJsonParser() (c *WorkitemConfigure, err error) {
-	c = new(WorkitemConfigure)
-	b, _ := os.ReadFile("../../configs/yunxiao_workitem_configure.json")
-	_ = sonic.Unmarshal(b, c)
-	return c, nil
-}
 
 func testSetup() {
 	// 设置全局时区
@@ -49,13 +33,5 @@ func testSetup() {
 	// 初始化数据库
 	ent.Setup(config.Get().Database.Postgres.Dsn, config.Get().Database.Postgres.Debug)
 
-	cfg := config.Get().Yunxiao
-
-	Setup(&Config{
-		AccessKeyId:     cfg.AccessKeyId,
-		AccessKeySecret: cfg.AccessKeySecret,
-		Endpoint:        cfg.Endpoint,
-		OrganizationId:  cfg.OrganizationId,
-		ProjectId:       cfg.ProjectId,
-	}, testWorkitemConfigureYamlParser)
+	Setup(testConfigureYamlParser)
 }
