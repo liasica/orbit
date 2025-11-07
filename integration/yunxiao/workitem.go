@@ -7,6 +7,7 @@ package yunxiao
 import (
 	"regexp"
 
+	"github.com/liasica/orbit/config/yc"
 	"github.com/liasica/orbit/integration/yunxiao/entity"
 )
 
@@ -32,11 +33,11 @@ func ListAllWorkitemTypes() (data []entity.WorkitemType, err error) {
 
 // ListWorkitemTypes 获取工作项类型列表
 // https://help.aliyun.com/zh/yunxiao/developer-reference/listworkitemtypes
-func ListWorkitemTypes(category entity.WorkitemCategory) (data []entity.WorkitemType, err error) {
+func ListWorkitemTypes(category yc.WorkitemCategory) (data []entity.WorkitemType, err error) {
 	_, err = instance.client.R().
 		SetPathParam("organizationId", instance.organizationId).
 		SetPathParam("id", instance.projectId).
-		SetQueryParam("category", category).
+		SetQueryParam("category", category.String()).
 		SetResult(&data).
 		Get("/oapi/v1/projex/organizations/{organizationId}/projects/{id}/workitemTypes")
 	return

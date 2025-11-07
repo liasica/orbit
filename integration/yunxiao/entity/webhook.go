@@ -4,9 +4,10 @@
 
 package entity
 
+import "github.com/liasica/orbit/config/yc"
+
 type WebhookStatusEvent struct {
-	From     ConfigureWorkflowStatus
-	To       ConfigureWorkflowStatus
+	From, To yc.WorkflowStatus
 	Workitem *Workitem
 }
 

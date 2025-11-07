@@ -9,7 +9,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/liasica/orbit/app/model"
+	"github.com/liasica/orbit/config"
 )
 
 const (
@@ -20,7 +20,7 @@ const (
 var testRegexpPattern = regexp.MustCompile(`(?m)dev/(.*)`)
 
 func testSplit(str string) {
-	if !strings.HasPrefix(str, model.GitlabBranchPrefix) {
+	if !strings.HasPrefix(str, config.GitlabBranchPrefix) {
 		return
 	}
 
@@ -28,11 +28,11 @@ func testSplit(str string) {
 }
 
 func testSlice(str string) {
-	if !strings.HasPrefix(str, model.GitlabBranchPrefix) {
+	if !strings.HasPrefix(str, config.GitlabBranchPrefix) {
 		return
 	}
 
-	_ = str[len(model.GitlabBranchPrefix):]
+	_ = str[len(config.GitlabBranchPrefix):]
 }
 
 func testRegexp(str string) {

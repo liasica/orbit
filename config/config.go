@@ -6,9 +6,16 @@ package config
 
 import (
 	"os"
+	"path/filepath"
 
 	"github.com/rs/zerolog/log"
 	"sigs.k8s.io/yaml"
+
+	"github.com/liasica/orbit/config/yc"
+)
+
+const (
+	GitlabBranchPrefix = "dev/"
 )
 
 var (
@@ -21,39 +28,29 @@ func GetVersion() string {
 }
 
 type Config struct {
-	Database *Database
-	Gitlab   *Gitlab
-	Yunxiao  *Yunxiao
-}
-
-// Database 数据库配置
-type Database struct {
-	Postgres struct {
-		Dsn   string
-		Debug bool
-	}
+	Gitlab  *Gitlab  `json:"gitlab,omitempty"`
+	Yunxiao *Yunxiao `json:"yunxiao,omitempty"`
 }
 
 type Gitlab struct {
-	BaseUrl       string
-	Token         string
-	WebhookSecret string
+	BaseUrl            string   `json:"baseUrl,omitempty"`
+	Token              string   `json:"token,omitempty"`
+	WebhookSecret      string   `json:"webhookSecret,omitempty"`
+	MergeTargetBranchs []string `json:"mergeTargetBranchs,omitempty"`
 }
 
 type Yunxiao struct {
-	Debug   bool
-	Webhook struct {
-		Secret string
-	}
-	AccessKeyId     string
-	AccessKeySecret string
-	OrganizationId  string
-	ProjectId       string
-	Domain          string
-	Token           string
-	WorkitemTypes   map[string]string // key: workitem category, value: typeId
-	WorkitemFields  map[string]string // key: workitem field, value: name
-	WorkflowNames   map[string]string // key: workflow status, value: name
+	ConfigPath string `json:"configPath,omitempty"` // 配置文件路径, 相对目录
+	Debug      bool   `json:"debug,omitempty"`
+	Webhook    struct {
+		Secret string `json:"secret,omitempty"`
+	} `json:"webhook,omitempty"`
+	AccessKeyId     string `json:"accessKeyId,omitempty"`
+	AccessKeySecret string `json:"accessKeySecret,omitempty"`
+	OrganizationId  string `json:"organizationId,omitempty"`
+	ProjectId       string `json:"projectId,omitempty"`
+	Domain          string `json:"domain,omitempty"`
+	Token           string `json:"token,omitempty"`
 }
 
 // Setup 读取并解析配置文件
@@ -69,6 +66,9 @@ func Setup(cfgPath string) {
 	if err != nil {
 		log.Fatal().Err(err)
 	}
+
+	ycfg := filepath.Join(filepath.Dir(cfgPath), config.Yunxiao.ConfigPath)
+	yc.Setup(ycfg)
 
 	log.Info().Msg("配置文件加载完成")
 }

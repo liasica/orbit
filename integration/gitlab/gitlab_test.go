@@ -16,7 +16,6 @@ import (
 	gitlab "gitlab.com/gitlab-org/api/client-go"
 
 	"github.com/liasica/orbit/config"
-	"github.com/liasica/orbit/ent"
 )
 
 func testSetup() {
@@ -33,9 +32,6 @@ func testSetup() {
 	}).With().CallerWithSkipFrameCount(2).Logger()
 
 	config.Setup("../../configs/config.yaml")
-
-	// 初始化数据库
-	ent.Setup(config.Get().Database.Postgres.Dsn, config.Get().Database.Postgres.Debug)
 
 	Setup()
 }

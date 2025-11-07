@@ -9,16 +9,14 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/bytedance/sonic"
 	"github.com/rs/zerolog/log"
 	git "gitlab.com/gitlab-org/api/client-go"
 
-	"github.com/liasica/orbit/app/model"
-	"github.com/liasica/orbit/ent/configure"
+	"github.com/liasica/orbit/config"
+	"github.com/liasica/orbit/config/yc"
 	"github.com/liasica/orbit/integration/gitlab"
 	"github.com/liasica/orbit/integration/yunxiao"
 	"github.com/liasica/orbit/integration/yunxiao/entity"
-	"github.com/liasica/orbit/repository"
 )
 
 type CooperationService struct {
@@ -30,9 +28,9 @@ func NewCooperation() *CooperationService {
 
 // GetBranchWorkitemID 从 branch 获取工作项 id
 func (s *CooperationService) GetBranchWorkitemID(branch string) (id string, ok bool) {
-	ok = strings.HasPrefix(branch, model.GitlabBranchPrefix)
+	ok = strings.HasPrefix(branch, config.GitlabBranchPrefix)
 	if ok {
-		id = branch[len(model.GitlabBranchPrefix):]
+		id = branch[len(config.GitlabBranchPrefix):]
 	}
 
 	return
@@ -40,38 +38,20 @@ func (s *CooperationService) GetBranchWorkitemID(branch string) (id string, ok b
 
 // GitlabMerged gitlab 分支已被合并
 func (s *CooperationService) GitlabMerged(source, target string) {
-	source = "dev/DAUR-317"
-	target = "development"
 	id, ok := s.GetBranchWorkitemID(source)
 	if !ok {
 		log.Info().Msgf("合并请求 %s 非 dev/ 分支", source)
 		return
 	}
 
-	// 获取目标分支配置
-	raw, _ := repository.NewConfigure().GetValue(configure.KeyGitlabMergeTargets)
-	if raw == nil {
-		log.Info().Msgf("未配置合并目标分支，跳过处理")
-		return
-	}
-
-	// 解析目标分支配置
-	var targets []string
-	err := sonic.Unmarshal(raw, &targets)
-	if err != nil {
-		log.Error().Err(err).Msg("解析合并目标分支配置失败")
-		return
-	}
-
 	// 判断合并目标是否在配置项中
-	if !slices.Contains(targets, target) {
-		log.Info().Msgf("目标分支 %s 不在配置列表中 (%s)，跳过处理", target, string(raw))
+	if !slices.Contains(config.Get().Gitlab.MergeTargetBranchs, target) {
+		log.Info().Msgf("目标分支 %s 不在配置列表中 (%s)，跳过处理", target, strings.Join(config.Get().Gitlab.MergeTargetBranchs, ","))
 		return
 	}
 
 	// 获取工作项
-	var workitem entity.Workitem
-	workitem, err = yunxiao.GetWorkitem(id)
+	workitem, err := yunxiao.GetWorkitem(id)
 	if err != nil {
 		log.Error().Err(err).Msg("获取工作项失败")
 		return
@@ -84,17 +64,14 @@ func (s *CooperationService) GitlabMerged(source, target string) {
 		return
 	}
 
-	// 获取工作项配置
-	cfg := NewYunxiao().GetWorkitemConfigure(workitem.CategoryID)
-
 	// 如果工作项状态不是 处理中 状态, 跳过
-	inProgress := cfg.GetWorkflowStatus(entity.ConfigureWorkflowStatusInProgress)
+	inProgress := yc.GetWorkflowStatus(workitem.CategoryID, yc.WorkflowStatusInProgress)
 	if status.ID != inProgress.Id {
 		log.Info().Msgf("工作项 %s 状态为 %s，跳过处理", id, status.Name)
 		return
 	}
 
-	underReview := cfg.GetWorkflowStatus(entity.ConfigureWorkflowStatusUnderReview)
+	underReview := yc.GetWorkflowStatus(workitem.CategoryID, yc.WorkflowStatusUnderReview)
 	if underReview.Id == "" {
 		log.Warn().Msg("获取待审查状态配置失败，跳过处理")
 		return
@@ -104,7 +81,7 @@ func (s *CooperationService) GitlabMerged(source, target string) {
 
 	// 修改工作项状态为 待审查
 	err = yunxiao.UpdateWorkitem(id, map[string]string{
-		entity.WorkitemStatusKey: underReview.Id,
+		yc.WorkitemStatusKey: underReview.Id,
 	})
 	if err != nil {
 		log.Error().Err(err).Msg("更新工作项状态失败")
@@ -127,11 +104,11 @@ func (s *CooperationService) YunxiaoStatusChanged(data *entity.WebhookStatusEven
 		return
 	}
 
-	cfg := NewYunxiao().GetWorkitemConfigure(workitem.CategoryID)
+	cfg := yc.GetWorkitem(workitem.CategoryID)
 
 	var err error
 
-	branch := model.GitlabBranchPrefix + workitem.SerialNumber
+	branch := config.GitlabBranchPrefix + workitem.SerialNumber
 
 	// 添加评论
 	created := "未自动创建 gitlab 分支"
@@ -146,7 +123,7 @@ func (s *CooperationService) YunxiaoStatusChanged(data *entity.WebhookStatusEven
 	// 获取 代码仓库 字段
 	var pid string
 	for _, field := range workitem.CustomFieldValues {
-		if field.FieldID == cfg.Fields[entity.ConfigureWorkitemFieldRepository].Id {
+		if field.FieldID == cfg.Fields[yc.FieldRepository].Id {
 			pid = field.Values[0].Identifier
 			break
 		}

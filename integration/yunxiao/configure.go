@@ -5,27 +5,17 @@
 package yunxiao
 
 import (
-	"github.com/liasica/orbit/config"
+	"github.com/liasica/orbit/config/yc"
 	"github.com/liasica/orbit/integration/yunxiao/entity"
 )
 
-// ConfigureParser 配置解析器
-type ConfigureParser func() (entity.ConfigureMap, error)
-
 // GetConfigure 获取工作项配置
-func GetConfigure() (configure entity.ConfigureMap, err error) {
-	configure = make(entity.ConfigureMap)
+func GetConfigure() (m map[yc.WorkitemCategory]yc.Workitem, err error) {
+	m = yc.Get()
 
 	// 获取所有工作项类型
-	for category, typeId := range config.Get().Yunxiao.WorkitemTypes {
-		configure[category] = &entity.Configure{
-			Workitem: &entity.WorkitemConfigure{
-				Category:         category,
-				TypeId:           typeId,
-				Fields:           make(map[entity.ConfigureWorkitemCustomField]entity.WorkitemFieldConfigure),
-				WorkflowStatuses: make(map[entity.ConfigureWorkflowStatus]entity.WorkitemWorkflowStatusConfigure),
-			},
-		}
+	for category, wc := range m {
+		typeId := wc.TypeId
 
 		// 获取字段配置
 		var fields []entity.Field
@@ -35,11 +25,11 @@ func GetConfigure() (configure entity.ConfigureMap, err error) {
 		}
 
 		for _, field := range fields {
-			for k, v := range config.Get().Yunxiao.WorkitemFields {
-				if v == field.Name {
-					configure[category].Workitem.Fields[k] = entity.WorkitemFieldConfigure{
-						Id:          field.Id,
-						Description: field.Description,
+			for k, v := range wc.Fields {
+				if v.Name == field.Name {
+					m[category].Fields[k] = yc.WorkitemField{
+						Id:   field.Id,
+						Name: field.Name,
 					}
 				}
 			}
@@ -53,12 +43,10 @@ func GetConfigure() (configure entity.ConfigureMap, err error) {
 		}
 
 		for _, status := range workflow.Statuses {
-			for k, v := range config.Get().Yunxiao.WorkflowNames {
-				if v == status.Name {
-					configure[category].Workitem.WorkflowStatuses[entity.ConfigureWorkflowStatus(k)] = entity.WorkitemWorkflowStatusConfigure{
-						Id:   status.Id,
-						Name: status.Name,
-					}
+			for k, v := range wc.Workflow {
+				if v.Name == status.Name {
+					v.Id = status.Id
+					m[category].Workflow[k] = v
 				}
 			}
 		}

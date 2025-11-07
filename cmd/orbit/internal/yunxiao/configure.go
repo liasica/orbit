@@ -7,13 +7,11 @@ package yunxiao
 import (
 	"time"
 
-	"github.com/bytedance/sonic"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
 
-	"github.com/liasica/orbit/ent/configure"
+	"github.com/liasica/orbit/config/yc"
 	"github.com/liasica/orbit/integration/yunxiao"
-	"github.com/liasica/orbit/repository"
 )
 
 var (
@@ -53,12 +51,7 @@ func doConfigureUpdate(_ *cobra.Command, _ []string) {
 		log.Fatal().Err(err)
 	}
 
-	var b []byte
-	b, err = sonic.Marshal(data)
-	if err != nil {
-		log.Fatal().Err(err)
-	}
-	err = repository.NewConfigure().SetValue(configure.KeyYunxiao, b)
+	err = yc.Store(data)
 	if err != nil {
 		log.Fatal().Err(err)
 	}

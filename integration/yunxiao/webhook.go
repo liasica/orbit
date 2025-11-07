@@ -12,6 +12,7 @@ import (
 	"github.com/bytedance/sonic/ast"
 	"github.com/rs/zerolog/log"
 
+	"github.com/liasica/orbit/config/yc"
 	"github.com/liasica/orbit/integration/yunxiao/entity"
 )
 
@@ -51,8 +52,8 @@ func StatusWebhook(r *http.Request, w http.ResponseWriter, handle WebhookHandler
 	}
 
 	data := &entity.WebhookStatusEvent{
-		From: entity.ConfigureWorkflowStatus(from),
-		To:   entity.ConfigureWorkflowStatus(to),
+		From: yc.WorkflowStatus(from),
+		To:   yc.WorkflowStatus(to),
 	}
 
 	var node ast.Node

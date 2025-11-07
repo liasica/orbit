@@ -9,13 +9,13 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/liasica/orbit/integration/yunxiao/entity"
+	"github.com/liasica/orbit/config/yc"
 )
 
 func TestListWorkitemTypes(t *testing.T) {
 	testSetup()
 
-	data, err := ListWorkitemTypes(entity.WorkitemCategoryBug)
+	data, err := ListWorkitemTypes(yc.WorkitemCategoryBug)
 	require.NoError(t, err)
 	require.NotEmpty(t, data)
 }
@@ -63,7 +63,7 @@ func TestUpdateWorkitem(t *testing.T) {
 	testSetup()
 
 	err := UpdateWorkitem("DAUR-317", map[string]string{
-		entity.WorkitemStatusKey: "100010",
+		yc.WorkitemStatusKey: "100010",
 	})
 	require.NoError(t, err)
 }
