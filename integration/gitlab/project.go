@@ -28,12 +28,8 @@ func ListProjects(opt *gitlab.ListProjectsOptions) (ps []*gitlab.Project, err er
 
 	if res.NextPage > 0 {
 		var morePs []*gitlab.Project
-		morePs, err = ListProjects(&gitlab.ListProjectsOptions{
-			ListOptions: gitlab.ListOptions{
-				Page:    res.NextPage,
-				PerPage: opt.PerPage,
-			},
-		})
+		opt.Page = res.NextPage
+		morePs, err = ListProjects(opt)
 		if err != nil {
 			return
 		}

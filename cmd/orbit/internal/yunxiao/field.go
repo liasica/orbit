@@ -5,6 +5,9 @@
 package yunxiao
 
 import (
+	"slices"
+	"strings"
+
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
 
@@ -47,6 +50,12 @@ func fieldRepositoryCmd() (cmd *cobra.Command) {
 			for _, p := range ps {
 				options = append(options, p.PathWithNamespace)
 			}
+
+			// 按名称排序
+			slices.SortFunc(options, func(a, b string) int {
+				return strings.Compare(a, b)
+			})
+
 			err = yunxiao.UpdateCustomField(fieldId, &entity.CustomField{
 				Name:    "代码仓库",
 				Options: options,
