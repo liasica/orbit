@@ -1,0 +1,11 @@
+services:
+
+  orbit:
+    image: ghcr.io/liasica/orbit:master
+    container_name: orbit
+    restart: always
+    ports:
+      - 32090:80
+    volumes:
+      - ./configs:/app/configs
+
