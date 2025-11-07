@@ -8,16 +8,13 @@ import (
 	"os"
 	"time"
 
-	"github.com/bytedance/sonic"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 
 	"github.com/liasica/orbit/config"
 	"github.com/liasica/orbit/ent"
-	"github.com/liasica/orbit/ent/configure"
+	"github.com/liasica/orbit/integration/gitlab"
 	"github.com/liasica/orbit/integration/yunxiao"
-	"github.com/liasica/orbit/integration/yunxiao/entity"
-	"github.com/liasica/orbit/repository"
 )
 
 func Bootstrap(cfgPath string) {
@@ -41,23 +38,11 @@ func Bootstrap(cfgPath string) {
 	// 初始化数据库
 	ent.Setup(config.Get().Database.Postgres.Dsn, config.Get().Database.Postgres.Debug)
 
+	// 初始化gitlab
+	gitlab.Setup()
+
 	// 初始化云效集成配置
-	yunxiao.Setup(
-		func() (entity.ConfigureMap, error) {
-			data, err := repository.NewConfigure().GetValue(configure.KeyYunxiao)
-			if err != nil {
-				return nil, err
-			}
-
-			cfg := make(entity.ConfigureMap)
-			err = sonic.Unmarshal(data, &cfg)
-			if err != nil {
-				return nil, err
-			}
-
-			return cfg, nil
-		},
-	)
+	yunxiao.Setup()
 
 	log.Info().Msg("Boot completed")
 }

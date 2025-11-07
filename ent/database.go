@@ -14,6 +14,7 @@ import (
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/rs/zerolog/log"
 
+	"github.com/liasica/orbit/ent/configure"
 	"github.com/liasica/orbit/ent/migrate"
 )
 
@@ -22,6 +23,7 @@ var Database *Client
 func Setup(dsn string, debug bool) {
 	OpenDatabase(dsn, debug)
 	autoMigrate()
+	dataInitialization()
 }
 
 func OpenDatabase(dsn string, debug bool) {
@@ -73,4 +75,15 @@ func WithTx(ctx context.Context, fn TxFunc) error {
 		return fmt.Errorf("committing transaction: %w", err)
 	}
 	return nil
+}
+
+func dataInitialization() {
+	ctx := context.Background()
+
+	if exists, _ := Database.Configure.Query().Where(configure.KeyEQ(configure.KeyGitlabMergeTargets)).Exist(ctx); !exists {
+		_ = Database.Configure.Create().
+			SetKey(configure.KeyGitlabMergeTargets).
+			SetData([]byte(`["development","main","master","next"]`)).
+			Exec(ctx)
+	}
 }

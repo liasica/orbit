@@ -19,7 +19,7 @@ func GetConfigure() (configure entity.ConfigureMap, err error) {
 	// 获取所有工作项类型
 	for category, typeId := range config.Get().Yunxiao.WorkitemTypes {
 		configure[category] = &entity.Configure{
-			Workitem: entity.WorkitemConfigure{
+			Workitem: &entity.WorkitemConfigure{
 				Category:         category,
 				TypeId:           typeId,
 				Fields:           make(map[entity.ConfigureWorkitemCustomField]entity.WorkitemFieldConfigure),
@@ -55,7 +55,7 @@ func GetConfigure() (configure entity.ConfigureMap, err error) {
 		for _, status := range workflow.Statuses {
 			for k, v := range config.Get().Yunxiao.WorkflowNames {
 				if v == status.Name {
-					configure[category].Workitem.WorkflowStatuses[k] = entity.WorkitemWorkflowStatusConfigure{
+					configure[category].Workitem.WorkflowStatuses[entity.ConfigureWorkflowStatus(k)] = entity.WorkitemWorkflowStatusConfigure{
 						Id:   status.Id,
 						Name: status.Name,
 					}

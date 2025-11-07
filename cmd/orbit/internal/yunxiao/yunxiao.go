@@ -21,8 +21,13 @@ var (
 )
 
 func Command() *cobra.Command {
+
 	rootCmd.AddGroup(configureGroup)
 	rootCmd.AddCommand(configureCmd)
+
+	rootCmd.AddGroup(fieldGroup)
+	rootCmd.AddCommand(fieldCmd)
+
 	return rootCmd
 }
 

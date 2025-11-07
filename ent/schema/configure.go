@@ -24,7 +24,7 @@ func (Configure) Annotations() []schema.Annotation {
 // Fields of the Configure.
 func (Configure) Fields() []ent.Field {
 	return []ent.Field{
-		field.Enum("key").Values("yunxiao").Comment("配置键"),
+		field.Enum("key").Values("yunxiao", "gitlab_merge_targets").Comment("配置键"),
 		field.JSON("data", sonic.NoCopyRawMessage{}).Comment("配置值"),
 	}
 }

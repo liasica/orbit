@@ -28,9 +28,10 @@ type Yunxiao struct {
 	accessKeyId     string
 	accessKeySecret string
 
-	organizationId  string
-	projectId       string
-	configureParser ConfigureParser
+	organizationId string
+	projectId      string
+
+	webhookSecret string
 
 	client *resty.Client
 	sdk    *devops.Client
@@ -41,7 +42,7 @@ var (
 	once     sync.Once
 )
 
-func Setup(workitemConfigureParser ConfigureParser) {
+func Setup() {
 	once.Do(func() {
 		cfg := config.Get().Yunxiao
 
@@ -50,7 +51,7 @@ func Setup(workitemConfigureParser ConfigureParser) {
 			accessKeySecret: cfg.AccessKeySecret,
 			organizationId:  cfg.OrganizationId,
 			projectId:       cfg.ProjectId,
-			configureParser: workitemConfigureParser,
+			webhookSecret:   cfg.Webhook.Secret,
 			client: resty.New().
 				SetDebug(cfg.Debug).
 				SetLogger(&Logger{}).

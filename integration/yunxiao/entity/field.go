@@ -27,3 +27,14 @@ type FieldOption struct {
 	DisplayValue string `json:"displayValue,omitempty"`
 	Id           string `json:"id,omitempty"`
 }
+
+// CustomField 自定义字段
+type CustomField struct {
+	DefaultValue    string   `json:"defaultValue,omitempty"`
+	Description     string   `json:"description,omitempty"`
+	DisabledOptions []string `json:"disabledOptions,omitempty"` // 字段待选值，只有字段是全局字段且是列表类型时才有效
+	Name            string   `json:"name,omitempty"`
+	NameEn          string   `json:"nameEn,omitempty"`
+	OperatorId      string   `json:"operatorId,omitempty"`
+	Options         []string `json:"options,omitempty"`
+}

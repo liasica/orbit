@@ -7,7 +7,7 @@ package script
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/liasica/orbit/rest"
+	"github.com/liasica/orbit/app"
 )
 
 var serverGroup = &cobra.Group{
@@ -38,7 +38,7 @@ func serverRunCommand() (cmd *cobra.Command) {
 		Short:             "运行服务端",
 		CompletionOptions: cobra.CompletionOptions{DisableDefaultCmd: true},
 		Run: func(_ *cobra.Command, _ []string) {
-			rest.Run(address)
+			app.Run(address)
 		},
 	}
 

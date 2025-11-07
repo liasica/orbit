@@ -22,7 +22,7 @@ func GetVersion() string {
 
 type Config struct {
 	Database *Database
-	PingCode *PingCode
+	Gitlab   *Gitlab
 	Yunxiao  *Yunxiao
 }
 
@@ -34,14 +34,17 @@ type Database struct {
 	}
 }
 
-type PingCode struct {
-	BaseUrl  string
-	ClientID string
-	Secret   string
+type Gitlab struct {
+	BaseUrl       string
+	Token         string
+	WebhookSecret string
 }
 
 type Yunxiao struct {
-	Debug           bool
+	Debug   bool
+	Webhook struct {
+		Secret string
+	}
 	AccessKeyId     string
 	AccessKeySecret string
 	OrganizationId  string

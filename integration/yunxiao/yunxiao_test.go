@@ -33,5 +33,5 @@ func testSetup() {
 	// 初始化数据库
 	ent.Setup(config.Get().Database.Postgres.Dsn, config.Get().Database.Postgres.Debug)
 
-	Setup(testConfigureYamlParser)
+	Setup()
 }
