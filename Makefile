@@ -13,4 +13,5 @@ MAIN_DIRECTORY := ./cmd/orbit
 build:
 	@echo Version: $(VERSION)
 	go build -trimpath -tags=sonic,poll_opt -gcflags "all=-N -l" -ldflags '-X "github.com/liasica/orbit/config.Version=${VERSION}"' -o ${BIN_OUTPUT} ${MAIN_DIRECTORY}
-
+	pwd
+	ls -lh ${BIN_OUTPUT}
