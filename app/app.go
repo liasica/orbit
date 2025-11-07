@@ -7,7 +7,6 @@ package app
 import (
 	"context"
 	"os/signal"
-	"strings"
 	"syscall"
 
 	"github.com/labstack/echo/v4"
@@ -42,9 +41,6 @@ func Run(addr string) {
 		return nil
 	})
 
-	// 获取端口号
-	port := strings.Split(addr, ":")[1]
-
 	// 获取IP地址
 	myIp, err := utils.GetMyIP()
 	if err != nil {
@@ -62,7 +58,7 @@ func Run(addr string) {
 		}
 	}()
 
-	log.Info().Msgf("REST API 服务已启动，监听地址: %s, 公网IP地址: %s:%s", addr, myIp, port)
+	log.Info().Msgf("REST API 服务已启动，监听地址: %s, 公网IP地址: %s", addr, myIp)
 
 	// 当中断信号发生时，关闭服务器并返回
 	<-sig.Done()
