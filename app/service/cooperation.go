@@ -113,7 +113,7 @@ func (s *CooperationService) YunxiaoStatusChanged(data *entity.WebhookStatusEven
 	// 添加评论
 	created := "未自动创建 gitlab 分支"
 	defer func() {
-		_, err = yunxiao.NewCreateWorkitemCommentRequest(workitem.ID, fmt.Sprintf("状态: %s → %s\n```\n\n%s, 创建命令: \ngit checkout -b %s\n```", data.From.Text(), data.To.Text(), created, branch)).Do()
+		_, err = yunxiao.NewCreateWorkitemCommentRequest(workitem.ID, fmt.Sprintf("状态: %s → %s\n\n%s, 创建命令: \n```\ngit checkout -b %s\n```", data.From.Text(), data.To.Text(), created, branch)).Do()
 		if err != nil {
 			log.Error().Err(err).Msgf("创建工作项 %s 评论失败", workitem.SerialNumber)
 			return
@@ -142,5 +142,5 @@ func (s *CooperationService) YunxiaoStatusChanged(data *entity.WebhookStatusEven
 		return
 	}
 
-	created = fmt.Sprintf("已创建分支 %s (commit: %s)", b.Name, b.Commit.ID)
+	created = fmt.Sprintf("已创建分支 `%s` (commit: %s)", b.Name, b.Commit.ID)
 }
