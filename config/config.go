@@ -72,8 +72,9 @@ type Feishu struct {
 	DepartmentId string `json:"departmentId,omitempty"`
 	CachePath    string `json:"cachePath,omitempty"` // TOKEN 缓存文件路径, 相对 config.yaml 目录
 	Message      struct {
-		Devops     FeishuMessage `json:"devops,omitempty"`
-		ApkRelease FeishuMessage `json:"apkRelease,omitempty"`
+		ApkRelease  FeishuMessage `json:"apkRelease,omitempty"`  // APK测试发包消息模板
+		UnderReview FeishuMessage `json:"underReview,omitempty"` // 待审查消息模板
+		Reviewed    FeishuMessage `json:"reviewed,omitempty"`    // 已审查消息模板
 	} `json:"message,omitempty"`
 }
 

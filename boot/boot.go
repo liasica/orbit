@@ -11,6 +11,7 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 
+	"github.com/liasica/orbit/app/service"
 	"github.com/liasica/orbit/config"
 	"github.com/liasica/orbit/ent"
 	"github.com/liasica/orbit/integration/feishu"
@@ -43,7 +44,9 @@ func Bootstrap(cfgPath string) {
 	gitlab.Setup()
 
 	// 初始化飞书
-	feishu.Setup()
+	feishu.Setup(
+		feishu.WithHookCardActionTrigger(service.NewFeishu().HookCardActionTrigger),
+	)
 
 	// 初始化云效集成配置
 	yunxiao.Setup()

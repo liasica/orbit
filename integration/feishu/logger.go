@@ -19,17 +19,17 @@ func NewLogger() *Logger {
 }
 
 func (l *Logger) Debug(_ context.Context, i ...interface{}) {
-	log.Debug().Msg(fmt.Sprintf("%v", i...))
+	log.Debug().CallerSkipFrame(1).Msg(fmt.Sprint(i...))
 }
 
 func (l *Logger) Info(_ context.Context, i ...interface{}) {
-	log.Info().Msg(fmt.Sprintf("%v", i...))
+	log.Info().CallerSkipFrame(1).Msg(fmt.Sprint(i...))
 }
 
 func (l *Logger) Warn(_ context.Context, i ...interface{}) {
-	log.Warn().Msg(fmt.Sprintf("%v", i...))
+	log.Warn().CallerSkipFrame(1).Msg(fmt.Sprint(i...))
 }
 
 func (l *Logger) Error(_ context.Context, i ...interface{}) {
-	log.Error().Msg(fmt.Sprintf("%v", i...))
+	log.Error().CallerSkipFrame(1).Msg(fmt.Sprint(i...))
 }

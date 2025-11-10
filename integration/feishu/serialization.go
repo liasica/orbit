@@ -7,6 +7,7 @@ package feishu
 import (
 	"github.com/bytedance/sonic"
 	larkcore "github.com/larksuite/oapi-sdk-go/v3/core"
+	"github.com/rs/zerolog/log"
 )
 
 type Serialization struct{}
@@ -26,6 +27,7 @@ func (s *Serialization) Deserialize(data []byte, v interface{}) error {
 		if err := sonic.Unmarshal(data, &codeErr); err != nil {
 			return err
 		}
+		log.Error().Bytes("data", data).Msg("飞书接口返回错误")
 		return &codeErr
 	}
 	return sonic.Unmarshal(data, v)

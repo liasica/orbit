@@ -26,13 +26,13 @@ func TestSendMessage(t *testing.T) {
 		Body(&v1.CreateMessageReqBody{
 			ReceiveId: &cfg.ReceiveId,
 			MsgType:   &cfg.MsgType,
-			Content: NewInteractiveTemplateMessage[ApkMessageVariables](cfg.TemplateId, &ApkMessageVariables{
-				ID:         "id",
-				AppName:    "test",
-				Message:    "test-message",
-				RCIntranet: "RCIntranet",
-				RCExtranet: "RCExtranet",
-				Version:    "1.0.0",
+			Content: NewInteractiveTemplateMessage[ApkMessage](cfg.TemplateId, &ApkMessage{
+				ID:       "id",
+				AppName:  "test",
+				Message:  "test-message",
+				Intranet: "RCIntranet",
+				Extranet: "RCExtranet",
+				Version:  "1.0.0",
 			}).StringPtr(),
 			Uuid: larkcore.StringPtr(uuid.New().String()),
 		})
