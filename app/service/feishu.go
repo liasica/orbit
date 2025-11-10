@@ -7,6 +7,8 @@ package service
 import (
 	"context"
 	"fmt"
+	"slices"
+	"strings"
 	"time"
 
 	"github.com/bytedance/sonic"
@@ -61,6 +63,10 @@ func (s *FeishuService) HookCardActionTrigger(_ context.Context, event *callback
 	// }()
 
 	var card *callback.Card
+	toast := &callback.Toast{
+		Type:    "info",
+		Content: "成功",
+	}
 
 	if event.Event != nil && event.Event.Action != nil && event.Event.Action.Value != nil && event.Event.Operator != nil && event.Event.Operator.UserID != nil {
 		values := event.Event.Action.Value
@@ -68,8 +74,20 @@ func (s *FeishuService) HookCardActionTrigger(_ context.Context, event *callback
 		title, _ := values["TITLE"].(string)
 		category, _ := values["CATEGORY"].(string)
 		url, _ := values["URL"].(string)
+		allowedStr, _ := values["REVIEW_USERS"].(string)
+		userId := *event.Event.Operator.UserID
 
-		if id != "" && title != "" && category != "" && url != "" {
+		if id != "" && title != "" && category != "" && url != "" && allowedStr != "" {
+			// 验证权限
+			allowed := strings.Split(allowedStr, ",")
+			if !slices.Contains(allowed, userId) {
+				toast = &callback.Toast{
+					Type:    "error",
+					Content: "您没有权限执行此操作",
+				}
+				goto output
+			}
+
 			// 更新卡片
 			// https://open.feishu.cn/document/feishu-cards/card-callback-communication#3ac8c17d
 			card = &callback.Card{
@@ -82,7 +100,7 @@ func (s *FeishuService) HookCardActionTrigger(_ context.Context, event *callback
 						Category: category,
 						Url:      url,
 						ReviewedUsers: []*feishu.MessageUserVaraibale{
-							{ID: *event.Event.Operator.UserID},
+							{ID: userId},
 						},
 						ReviewedTime: time.Now().Format(time.DateTime),
 					},
@@ -94,12 +112,10 @@ func (s *FeishuService) HookCardActionTrigger(_ context.Context, event *callback
 		}
 	}
 
+output:
 	output := &callback.CardActionTriggerResponse{
-		Toast: &callback.Toast{
-			Type:    "info",
-			Content: "成功",
-		},
-		Card: card,
+		Toast: toast,
+		Card:  card,
 	}
 
 	b, _ := sonic.MarshalIndent(output, "", "  ")
