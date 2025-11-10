@@ -1,11 +1,37 @@
 services:
 
+  postgres:
+    image: postgres:18
+    container_name: orbit-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: orbit@2025
+      POSTGRES_DB: orbit
+      TZ: Asia/Shanghai
+    ports:
+      - "32091:5432"
+    volumes:
+      - ./db:/var/lib/postgresql
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+
   orbit:
     image: ghcr.io/liasica/orbit:master
     container_name: orbit
     restart: always
+    environment:
+      TZ: Asia/Shanghai
+    depends_on:
+      - postgres
     ports:
-      - 32090:80
+      - "32090:80"
     volumes:
       - ./configs:/app/configs
-
+      - ./data:/app/data
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m

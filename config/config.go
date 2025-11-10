@@ -28,8 +28,20 @@ func GetVersion() string {
 }
 
 type Config struct {
-	Gitlab  *Gitlab  `json:"gitlab,omitempty"`
-	Yunxiao *Yunxiao `json:"yunxiao,omitempty"`
+	path string
+
+	Database *Database `json:"database,omitempty"`
+	Gitlab   *Gitlab   `json:"gitlab,omitempty"`
+	Yunxiao  *Yunxiao  `json:"yunxiao,omitempty"`
+	Feishu   *Feishu   `json:"feishu,omitempty"`
+}
+
+// Database 数据库配置
+type Database struct {
+	Postgres struct {
+		Dsn   string
+		Debug bool
+	}
 }
 
 type Gitlab struct {
@@ -40,7 +52,7 @@ type Gitlab struct {
 }
 
 type Yunxiao struct {
-	ConfigPath string `json:"configPath,omitempty"` // 配置文件路径, 相对目录
+	ConfigPath string `json:"configPath,omitempty"` // 配置文件路径, 相对 config.yaml 目录
 	Debug      bool   `json:"debug,omitempty"`
 	Webhook    struct {
 		Secret string `json:"secret,omitempty"`
@@ -51,6 +63,25 @@ type Yunxiao struct {
 	ProjectId       string `json:"projectId,omitempty"`
 	Domain          string `json:"domain,omitempty"`
 	Token           string `json:"token,omitempty"`
+}
+
+type Feishu struct {
+	Debug        bool   `json:"debug,omitempty"`
+	AppId        string `json:"appId,omitempty"`
+	AppSecret    string `json:"appSecret,omitempty"`
+	DepartmentId string `json:"departmentId,omitempty"`
+	CachePath    string `json:"cachePath,omitempty"` // TOKEN 缓存文件路径, 相对 config.yaml 目录
+	Message      struct {
+		Devops     FeishuMessage `json:"devops,omitempty"`
+		ApkRelease FeishuMessage `json:"apkRelease,omitempty"`
+	} `json:"message,omitempty"`
+}
+
+type FeishuMessage struct {
+	TemplateId    string `json:"templateId,omitempty"`
+	ReceiveIdType string `json:"receiveIdType,omitempty"`
+	ReceiveId     string `json:"receiveId,omitempty"`
+	MsgType       string `json:"msgType,omitempty"`
 }
 
 // Setup 读取并解析配置文件
@@ -67,6 +98,9 @@ func Setup(cfgPath string) {
 		log.Fatal().Err(err)
 	}
 
+	config.path = cfgPath
+
+	// 初始化云效配置
 	ycfg := filepath.Join(filepath.Dir(cfgPath), config.Yunxiao.ConfigPath)
 	yc.Setup(ycfg)
 
@@ -75,4 +109,17 @@ func Setup(cfgPath string) {
 
 func Get() *Config {
 	return config
+}
+
+var _ = GetPath
+
+// GetPath 返回配置文件路径
+func GetPath() string {
+	return config.path
+}
+
+// GetAbsolutePath 返回相对于配置文件目录的绝对路径
+func GetAbsolutePath(relPath string) (absPath string) {
+	absPath, _ = filepath.Abs(filepath.Join(filepath.Dir(config.path), relPath))
+	return
 }

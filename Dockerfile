@@ -6,7 +6,7 @@ WORKDIR /go/orbit
 COPY . .
 RUN go mod download && make build
 
-FROM alpine:3
+FROM alpine:latest
 RUN apk update \
     && apk add --no-cache ca-certificates tzdata \
     && ln -s /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \

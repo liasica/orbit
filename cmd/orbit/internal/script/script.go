@@ -8,9 +8,13 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/liasica/orbit/boot"
-	"github.com/liasica/orbit/cmd/orbit/internal/yunxiao"
 	"github.com/liasica/orbit/config"
 )
+
+type CommandGroup interface {
+	Group() *cobra.Group
+	Command() *cobra.Command
+}
 
 func Run() {
 	var (
@@ -29,16 +33,27 @@ func Run() {
 
 	cmd.PersistentFlags().StringVarP(&configFile, "config", "c", "./configs/config.yaml", "配置文件路径, 例如: ./configs/config.yaml")
 
+	// 服务端指令
+	serverCmd := NewServer()
+
+	// 云效指令
+	yunxiaoCmd := NewYunxiao()
+
+	// 用户指令
+	userCmd := NewUser()
+
 	// 添加指令组
 	cmd.AddGroup(
-		serverGroup,
-		yunxiao.Group(),
+		serverCmd.Group(),
+		yunxiaoCmd.Group(),
+		userCmd.Group(),
 	)
 
 	// 添加子命令
 	cmd.AddCommand(
-		serverCommand(),
-		yunxiao.Command(),
+		serverCmd.Command(),
+		yunxiaoCmd.Command(),
+		userCmd.Command(),
 	)
 
 	_ = cmd.Execute()
