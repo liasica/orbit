@@ -109,8 +109,8 @@ jobs:
             # 更新 docker-compose.yaml 中的镜像版本
             if [ -f docker-compose.yaml ]; then
               # 使用 sed 直接替换 image 行
-              sed -i "s|image:.*|image: ${IMAGE_TAG}|g" docker-compose.yaml
-              
+              sed -i '/^  orbit:/,/^  [a-zA-Z0-9_-]\+:/ s|image:.*|image: '"${IMAGE_TAG}"'|' docker-compose.yaml
+
               # 显示更新后的配置
               echo "Updated docker-compose.yaml:"
               cat docker-compose.yaml
