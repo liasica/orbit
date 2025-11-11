@@ -68,7 +68,9 @@ func addControllers(e *echo.Echo) {
 
 	// 发送 apk message
 	e.POST("/feishu/message/apk", func(c echo.Context) error {
-		return service.NewFeishu().SendApkMessage(bindRequest[model.FeishuApkMessageRequest](c))
+		req := bindRequest[model.FeishuApkMessageRequest](c)
+		go service.NewFeishu().SendApkMessage(req)
+		return c.NoContent(http.StatusOK)
 	})
 
 	// 发送 review message

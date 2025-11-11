@@ -9,6 +9,26 @@ import (
 )
 
 var (
+	// MessageColumns holds the columns for the "message" table.
+	MessageColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "message_id", Type: field.TypeString, Unique: true, Comment: "消息ID"},
+		{Name: "workitem_id", Type: field.TypeString, Nullable: true, Comment: "工作项ID"},
+		{Name: "varaibales", Type: field.TypeJSON, Comment: "消息变量"},
+	}
+	// MessageTable holds the schema information for the "message" table.
+	MessageTable = &schema.Table{
+		Name:       "message",
+		Columns:    MessageColumns,
+		PrimaryKey: []*schema.Column{MessageColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "message_workitem_id",
+				Unique:  false,
+				Columns: []*schema.Column{MessageColumns[2]},
+			},
+		},
+	}
 	// UserColumns holds the columns for the "user" table.
 	UserColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
@@ -60,11 +80,15 @@ var (
 	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
+		MessageTable,
 		UserTable,
 	}
 )
 
 func init() {
+	MessageTable.Annotation = &entsql.Annotation{
+		Table: "message",
+	}
 	UserTable.Annotation = &entsql.Annotation{
 		Table: "user",
 	}

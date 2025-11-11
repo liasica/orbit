@@ -11,9 +11,6 @@ import (
 	"strings"
 
 	"github.com/bytedance/sonic"
-	"github.com/google/uuid"
-	larkcore "github.com/larksuite/oapi-sdk-go/v3/core"
-	v1 "github.com/larksuite/oapi-sdk-go/v3/service/im/v1"
 	"github.com/rs/zerolog/log"
 	git "gitlab.com/gitlab-org/api/client-go"
 
@@ -139,30 +136,18 @@ func (s *YunxiaoService) hookActionWorkitemCreated(_ http.Header, workitem *enti
 
 	// 给指定人员发送卡片消息
 	for _, u := range users {
-		cfg := config.Get().Feishu.Message.Job
-
-		req := v1.NewCreateMessageReqBuilder().
-			ReceiveIdType(v1.UserIdTypeUserId).
-			Body(&v1.CreateMessageReqBody{
-				ReceiveId: &u.LarkUserID,
-				MsgType:   &cfg.MsgType,
-				Content: feishu.NewInteractiveTemplateMessage[feishu.JobMessage](cfg.TemplateId, &feishu.JobMessage{
-					ID:          workitem.SerialNumber,
-					Title:       workitem.Subject,
-					Category:    workitem.CategoryID.Text(),
-					Theme:       theme,
-					Description: desc,
-					Url:         url,
-					Icon:        &feishu.MessageImageVaraibale{ImgKey: icon},
-					Status:      workitem.Status.Name,
-				}).StringPtr(),
-				Uuid: larkcore.StringPtr(uuid.New().String()),
-			})
-
-		_, err := feishu.SendMessage(context.Background(), req.Build())
-		if err != nil {
-			log.Error().Err(err).Msgf("发送飞书消息给用户 %s 失败", u.Name)
-		}
+		NewFeishu().SendJobMessage(&model.FeishuSendJobMessageRequest{
+			ReceiveIdType: feishu.ReceiveIdTypeUserID,
+			ReceiveId:     u.LarkUserID,
+			ID:            workitem.SerialNumber,
+			Title:         workitem.Subject,
+			Category:      workitem.CategoryID.Text(),
+			Theme:         theme,
+			Description:   desc,
+			Url:           url,
+			Icon:          icon,
+			Status:        workitem.Status.Name,
+		})
 	}
 }
 

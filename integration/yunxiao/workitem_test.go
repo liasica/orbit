@@ -47,7 +47,7 @@ func TestGetWorkitemWorkflow(t *testing.T) {
 func TestGetWorkitem(t *testing.T) {
 	testSetup()
 
-	data, err := GetWorkitem("DAUR-316")
+	data, err := GetWorkitem("DAUR-8")
 	require.NoError(t, err)
 	require.NotNil(t, data)
 }

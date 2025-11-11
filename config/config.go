@@ -66,11 +66,13 @@ type Yunxiao struct {
 }
 
 type Feishu struct {
-	Debug        bool   `json:"debug,omitempty"`
-	AppId        string `json:"appId,omitempty"`
-	AppSecret    string `json:"appSecret,omitempty"`
-	DepartmentId string `json:"departmentId,omitempty"`
-	Icons        struct {
+	Debug             bool   `json:"debug,omitempty"`
+	AppId             string `json:"appId,omitempty"`
+	AppSecret         string `json:"appSecret,omitempty"`
+	DepartmentId      string `json:"departmentId,omitempty"`
+	DevopsGroupId     string `json:"devopsGroupId,omitempty"`
+	ApkReleaseGroupId string `json:"apkReleaseGroupId,omitempty"`
+	Icons             struct {
 		Bug  string `json:"bug,omitempty"`
 		Task string `json:"task,omitempty"`
 	} `json:"icons,omitempty"`
@@ -83,10 +85,8 @@ type Feishu struct {
 }
 
 type FeishuMessage struct {
-	TemplateId    string `json:"templateId,omitempty"`
-	ReceiveIdType string `json:"receiveIdType,omitempty"`
-	ReceiveId     string `json:"receiveId,omitempty"`
-	MsgType       string `json:"msgType,omitempty"`
+	TemplateId string `json:"templateId,omitempty"`
+	MsgType    string `json:"msgType,omitempty"`
 }
 
 // Setup 读取并解析配置文件
