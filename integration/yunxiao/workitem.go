@@ -68,11 +68,12 @@ func GetWorkitemWorkflow(workitemTypeId string) (data entity.Workflow, err error
 
 // GetWorkitem 获取工作项
 // https://help.aliyun.com/zh/yunxiao/developer-reference/getworkitem
-func GetWorkitem(workitemId string) (data entity.Workitem, err error) {
+func GetWorkitem(workitemId string) (data *entity.Workitem, err error) {
+	data = new(entity.Workitem)
 	_, err = instance.client.R().
 		SetPathParam("organizationId", instance.organizationId).
 		SetPathParam("id", workitemId).
-		SetResult(&data).
+		SetResult(data).
 		Get("/oapi/v1/projex/organizations/{organizationId}/workitems/{id}")
 	return
 }

@@ -13,15 +13,12 @@ import (
 )
 
 // Field 工作项字段
-type Field string
+type Field = string
 
 const (
 	FieldRepository Field = "repository"
-)
-
-const (
-	// WorkitemStatusKey 工作项状态字段键
-	WorkitemStatusKey = "status"
+	FieldStatus     Field = "status"
+	FieldReviewUser Field = "reviewUser"
 )
 
 // WorkitemCategory 工作项类别

@@ -17,6 +17,11 @@ type MessageUserVaraibale struct {
 	ID string `json:"id"`
 }
 
+// MessageImageVaraibale 模板消息图片变量
+type MessageImageVaraibale struct {
+	ImgKey string `json:"img_key,omitempty"`
+}
+
 // SendMessage 发送消息
 func SendMessage(ctx context.Context, req *v1.CreateMessageReq, options ...larkcore.RequestOptionFunc) (*v1.CreateMessageResp, error) {
 	resp, err := instance.client.Im.V1.Message.Create(ctx, req, options...)

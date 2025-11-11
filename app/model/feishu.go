@@ -14,8 +14,8 @@ type FeishuApkMessageRequest struct {
 	Version  string `json:"version,omitempty" validate:"required"`
 }
 
-// FeishuUnderReviewMessageRequest 飞书待审查消息请求体
-type FeishuUnderReviewMessageRequest struct {
+// FeishuSendUnderReviewMessageRequest 飞书待审查消息请求体
+type FeishuSendUnderReviewMessageRequest struct {
 	ID          string `json:"id,omitempty"`
 	Title       string `json:"title,omitempty"`
 	Category    string `json:"category,omitempty"`
@@ -23,4 +23,16 @@ type FeishuUnderReviewMessageRequest struct {
 	Description string `json:"description,omitempty"`
 	ReviewUsers string `json:"reviewUsers,omitempty"`
 	Url         string `json:"url,omitempty"`
+}
+
+// FeishuSendJobMessageRequest 飞书新工作消息请求体
+type FeishuSendJobMessageRequest struct {
+	ID          string `json:"id,omitempty"`
+	Title       string `json:"title,omitempty"`
+	Category    string `json:"category,omitempty"`
+	Theme       string `json:"theme,omitempty"`
+	Description string `json:"description,omitempty"`
+	Url         string `json:"url,omitempty"`
+	Icon        string `json:"icon,omitempty"`
+	Status      string `json:"status,omitempty"`
 }

@@ -63,7 +63,7 @@ func TestUpdateWorkitem(t *testing.T) {
 	testSetup()
 
 	err := UpdateWorkitem("DAUR-317", map[string]string{
-		yc.WorkitemStatusKey: "100010",
+		yc.FieldStatus: "100010",
 	})
 	require.NoError(t, err)
 }

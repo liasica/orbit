@@ -40,3 +40,8 @@ func Setup() {
 		}
 	})
 }
+
+// VerifyWebhookSecret 校验 GitLab Webhook Secret
+func VerifyWebhookSecret(secret string) bool {
+	return instance.webhookSecret == secret
+}

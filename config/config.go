@@ -70,11 +70,15 @@ type Feishu struct {
 	AppId        string `json:"appId,omitempty"`
 	AppSecret    string `json:"appSecret,omitempty"`
 	DepartmentId string `json:"departmentId,omitempty"`
-	CachePath    string `json:"cachePath,omitempty"` // TOKEN 缓存文件路径, 相对 config.yaml 目录
-	Message      struct {
+	Icons        struct {
+		Bug  string `json:"bug,omitempty"`
+		Task string `json:"task,omitempty"`
+	} `json:"icons,omitempty"`
+	Message struct {
 		ApkRelease  FeishuMessage `json:"apkRelease,omitempty"`  // APK测试发包消息模板
 		UnderReview FeishuMessage `json:"underReview,omitempty"` // 待审查消息模板
 		Reviewed    FeishuMessage `json:"reviewed,omitempty"`    // 已审查消息模板
+		Job         FeishuMessage `json:"job,omitempty"`         // 新工作消息模板
 	} `json:"message,omitempty"`
 }
 
@@ -118,6 +122,8 @@ var _ = GetPath
 func GetPath() string {
 	return config.path
 }
+
+var _ = GetAbsolutePath
 
 // GetAbsolutePath 返回相对于配置文件目录的绝对路径
 func GetAbsolutePath(relPath string) (absPath string) {
