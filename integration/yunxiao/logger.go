@@ -14,13 +14,13 @@ type Logger struct {
 }
 
 func (l Logger) Errorf(format string, v ...any) {
-	log.Error().Err(fmt.Errorf(format, v...))
+	log.Error().CallerSkipFrame(1).Msg(fmt.Sprintf(format, v...))
 }
 
 func (l Logger) Warnf(format string, v ...any) {
-	log.Warn().Err(fmt.Errorf(format, v...))
+	log.Warn().CallerSkipFrame(1).Msg(fmt.Sprintf(format, v...))
 }
 
 func (l Logger) Debugf(format string, v ...any) {
-	log.Debug().Msgf(format, v...)
+	log.Debug().CallerSkipFrame(1).Msg(fmt.Sprintf(format, v...))
 }

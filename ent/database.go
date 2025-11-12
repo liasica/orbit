@@ -27,7 +27,7 @@ func Setup(dsn string, debug bool) {
 func OpenDatabase(dsn string, debug bool) {
 	db, err := sql.Open("pgx", dsn)
 	if err != nil {
-		log.Fatal().Err(err)
+		log.Fatal().Err(err).Msg("打开数据库失败")
 	}
 
 	drv := entsql.OpenDB(dialect.Postgres, db)
@@ -46,7 +46,9 @@ func autoMigrate() {
 		migrate.WithForeignKeys(false),
 	)
 	if err != nil {
-		log.Fatal().Err(err)
+		log.Fatal().
+			Err(err).
+			Msg("合并数据库失败")
 	}
 }
 

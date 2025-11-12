@@ -103,7 +103,7 @@ func Setup(cfgPath string) {
 
 	data, err := os.ReadFile(cfgPath)
 	if err != nil {
-		log.Fatal().Err(err)
+		log.Fatal().Err(err).Msg("读取云效配置文件失败")
 	}
 
 	instance = &Configure{
@@ -115,7 +115,7 @@ func Setup(cfgPath string) {
 
 	err = yaml.Unmarshal(data, &m)
 	if err != nil {
-		log.Fatal().Err(err)
+		log.Fatal().Err(err).Msg("解析云效配置文件失败")
 	}
 
 	Set(m)

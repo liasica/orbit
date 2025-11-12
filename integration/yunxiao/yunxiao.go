@@ -79,7 +79,7 @@ func Setup() {
 			Endpoint:        tea.String("devops.cn-hangzhou.aliyuncs.com"),
 		})
 		if err != nil {
-			log.Panic().Err(err)
+			log.Panic().Err(err).Msg("初始化云效 SDK 客户端失败")
 		}
 	})
 }
