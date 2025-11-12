@@ -42,7 +42,7 @@ func autoMigrate() {
 		context.Background(),
 		migrate.WithDropIndex(true),
 		migrate.WithDropColumn(true),
-		migrate.WithGlobalUniqueID(true),
+		// migrate.WithGlobalUniqueID(true),
 		migrate.WithForeignKeys(false),
 	)
 	if err != nil {

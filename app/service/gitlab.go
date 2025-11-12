@@ -5,6 +5,7 @@
 package service
 
 import (
+	"context"
 	"fmt"
 	"slices"
 	"strings"
@@ -14,6 +15,8 @@ import (
 
 	"github.com/liasica/orbit/config"
 	"github.com/liasica/orbit/config/yc"
+	"github.com/liasica/orbit/ent"
+	"github.com/liasica/orbit/ent/repository"
 	"github.com/liasica/orbit/integration/gitlab"
 	"github.com/liasica/orbit/integration/yunxiao"
 )
@@ -23,6 +26,62 @@ type GitlabService struct {
 
 func NewGitlab() *GitlabService {
 	return &GitlabService{}
+}
+
+// StoreProjects 存储 Gitlab 项目到本地数据库
+func (s *GitlabService) StoreProjects() {
+	projects, err := gitlab.ListProjects(&git.ListProjectsOptions{
+		IncludeHidden:        git.Ptr(false),
+		IncludePendingDelete: git.Ptr(false),
+	})
+	if err != nil {
+		log.Error().Err(err).Msg("获取 Gitlab 项目列表失败")
+		return
+	}
+
+	var needDelete []int
+	for _, p := range projects {
+		// 如果项目 在跳过列表中、已删除、已归档、命名空间不是 group 或在跳过列表中，则跳过
+		if slices.Contains(config.Get().Gitlab.SkipRepositories, p.PathWithNamespace) ||
+			p.MarkedForDeletionOn != nil ||
+			p.Archived ||
+			(p.Namespace != nil && (p.Namespace.Kind != "group" || slices.Contains(config.Get().Gitlab.SkipNamespaces, p.Namespace.Path))) {
+			needDelete = append(needDelete, p.ID)
+		}
+
+		// 创建或更新项目
+		err = ent.Database.Repository.Create().
+			SetPath(p.PathWithNamespace).
+			SetID(p.ID).
+			OnConflictColumns(repository.FieldID).
+			UpdateNewValues().
+			Exec(context.Background())
+		if err != nil {
+			log.Error().Err(err).Msgf("保存 Gitlab 项目 %s 失败", p.PathWithNamespace)
+			continue
+		}
+	}
+
+	if len(needDelete) > 0 {
+		_, _ = ent.Database.Repository.Delete().
+			Where(repository.IDIn(needDelete...)).
+			Exec(context.Background())
+	}
+}
+
+// GetProjects 获取所有已存储的 Gitlab 项目路径
+func (s *GitlabService) GetProjects() (items []string) {
+	projects, _ := ent.Database.Repository.Query().All(context.Background())
+	items = make([]string, len(projects))
+	for i, p := range projects {
+		items[i] = p.Path
+	}
+
+	slices.SortFunc(items, func(a, b string) int {
+		return strings.Compare(a, b)
+	})
+
+	return
 }
 
 // Webhook 处理 Gitlab Webhook 请求

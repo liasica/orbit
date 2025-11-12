@@ -32,6 +32,31 @@ func NewYunxiao() *YunxiaoService {
 	return &YunxiaoService{}
 }
 
+// UpdateRepositoryField 更新云效代码仓库字段
+func (s *YunxiaoService) UpdateRepositoryField() {
+	options := NewGitlab().GetProjects()
+
+	bugRepositoryId := yc.GetWorkitem(yc.WorkitemCategoryBug).Fields[yc.FieldRepository].Id
+	err := yunxiao.UpdateCustomField(bugRepositoryId, &entity.CustomField{
+		Name:    "代码仓库",
+		Options: options,
+	})
+	if err != nil {
+		log.Error().Err(err).Msg("更新云效仓库字段失败")
+	}
+
+	taskRepositoryId := yc.GetWorkitem(yc.WorkitemCategoryTask).Fields[yc.FieldRepository].Id
+	if bugRepositoryId != taskRepositoryId {
+		err = yunxiao.UpdateCustomField(bugRepositoryId, &entity.CustomField{
+			Name:    "代码仓库",
+			Options: options,
+		})
+		if err != nil {
+			log.Error().Err(err).Msg("更新云效仓库字段失败")
+		}
+	}
+}
+
 // GetUserFromWorkitemCustomFieldValues 从工作项获取用户列表
 func (s *YunxiaoService) GetUserFromWorkitemCustomFieldValues(workitem *entity.Workitem, field yc.Field) (users []*ent.User) {
 	var ids []string

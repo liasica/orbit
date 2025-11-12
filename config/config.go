@@ -49,6 +49,8 @@ type Gitlab struct {
 	Token              string   `json:"token,omitempty"`
 	WebhookSecret      string   `json:"webhookSecret,omitempty"`
 	MergeTargetBranchs []string `json:"mergeTargetBranchs,omitempty"`
+	SkipNamespaces     []string `json:"skipNamespaces,omitempty"`   // 跳过的命名空间
+	SkipRepositories   []string `json:"skipRepositories,omitempty"` // 跳过的仓库
 }
 
 type Yunxiao struct {

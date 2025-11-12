@@ -29,6 +29,17 @@ var (
 			},
 		},
 	}
+	// RepositoryColumns holds the columns for the "repository" table.
+	RepositoryColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "path", Type: field.TypeString, Unique: true, Comment: "仓库路径"},
+	}
+	// RepositoryTable holds the schema information for the "repository" table.
+	RepositoryTable = &schema.Table{
+		Name:       "repository",
+		Columns:    RepositoryColumns,
+		PrimaryKey: []*schema.Column{RepositoryColumns[0]},
+	}
 	// UserColumns holds the columns for the "user" table.
 	UserColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
@@ -81,6 +92,7 @@ var (
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
 		MessageTable,
+		RepositoryTable,
 		UserTable,
 	}
 )
@@ -88,6 +100,9 @@ var (
 func init() {
 	MessageTable.Annotation = &entsql.Annotation{
 		Table: "message",
+	}
+	RepositoryTable.Annotation = &entsql.Annotation{
+		Table: "repository",
 	}
 	UserTable.Annotation = &entsql.Annotation{
 		Table: "user",

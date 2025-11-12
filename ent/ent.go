@@ -13,6 +13,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/liasica/orbit/ent/message"
+	"github.com/liasica/orbit/ent/repository"
 	"github.com/liasica/orbit/ent/user"
 )
 
@@ -74,8 +75,9 @@ var (
 func checkColumn(t, c string) error {
 	initCheck.Do(func() {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
-			message.Table: message.ValidColumn,
-			user.Table:    user.ValidColumn,
+			message.Table:    message.ValidColumn,
+			repository.Table: repository.ValidColumn,
+			user.Table:       user.ValidColumn,
 		})
 	})
 	return columnCheck(t, c)

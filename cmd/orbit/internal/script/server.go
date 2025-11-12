@@ -8,6 +8,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/liasica/orbit/app"
+	"github.com/liasica/orbit/app/cron"
 )
 
 type Server struct {
@@ -44,6 +45,7 @@ func NewServer() (c *Server) {
 				Short:             "运行服务端",
 				CompletionOptions: cobra.CompletionOptions{DisableDefaultCmd: true},
 				Run: func(_ *cobra.Command, _ []string) {
+					go cron.Run()
 					app.Run(address)
 				},
 			}

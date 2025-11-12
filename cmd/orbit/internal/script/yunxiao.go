@@ -5,17 +5,14 @@
 package script
 
 import (
-	"slices"
-	"strings"
 	"time"
 
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
 
+	"github.com/liasica/orbit/app/service"
 	"github.com/liasica/orbit/config/yc"
-	"github.com/liasica/orbit/integration/gitlab"
 	"github.com/liasica/orbit/integration/yunxiao"
-	"github.com/liasica/orbit/integration/yunxiao/entity"
 )
 
 type Yunxiao struct {
@@ -78,38 +75,16 @@ func (c *Yunxiao) configureUpdateCmd() (cmd *cobra.Command) {
 }
 
 func (c *Yunxiao) fieldRepositoryCmd() (cmd *cobra.Command) {
-	var fieldId string
-
 	cmd = &cobra.Command{
 		Use:               "field",
 		Short:             "云效更新字段配置",
 		CompletionOptions: cobra.CompletionOptions{DisableDefaultCmd: true},
 		Run: func(_ *cobra.Command, _ []string) {
-			ps, err := gitlab.ListProjects(nil)
-			if err != nil {
-				log.Fatal().Err(err)
-			}
-			var options []string
-			for _, p := range ps {
-				options = append(options, p.PathWithNamespace)
-			}
+			service.NewGitlab().StoreProjects()
 
-			// 按名称排序
-			slices.SortFunc(options, func(a, b string) int {
-				return strings.Compare(a, b)
-			})
-
-			err = yunxiao.UpdateCustomField(fieldId, &entity.CustomField{
-				Name:    "代码仓库",
-				Options: options,
-			})
-			if err != nil {
-				log.Fatal().Err(err)
-			}
+			service.NewYunxiao().UpdateRepositoryField()
 		},
 	}
-
-	cmd.Flags().StringVar(&fieldId, "id", "1e216b5770aac61d8778651c86", "字段ID")
 
 	return
 }

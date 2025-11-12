@@ -14,6 +14,8 @@ type Tx struct {
 	config
 	// Message is the client for interacting with the Message builders.
 	Message *MessageClient
+	// Repository is the client for interacting with the Repository builders.
+	Repository *RepositoryClient
 	// User is the client for interacting with the User builders.
 	User *UserClient
 
@@ -148,6 +150,7 @@ func (tx *Tx) Client() *Client {
 
 func (tx *Tx) init() {
 	tx.Message = NewMessageClient(tx.config)
+	tx.Repository = NewRepositoryClient(tx.config)
 	tx.User = NewUserClient(tx.config)
 }
 
