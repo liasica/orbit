@@ -26,6 +26,9 @@ func Run() {
 		// 更新云效仓库字段
 		service.NewYunxiao().UpdateRepositoryField()
 
+		// 更新用户列表
+		service.NewUser().Sync()
+
 		log.Info().Msgf("定时任务执行完毕，耗时 %s", time.Since(now).String())
 	}
 }
