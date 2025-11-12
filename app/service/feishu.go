@@ -43,6 +43,7 @@ func (s *FeishuService) SaveMessage(resp *v1.CreateMessageResp, workitemId *stri
 		SetMessageID(*resp.Data.MessageId).
 		SetNillableWorkitemID(workitemId).
 		SetVaraibales(b).
+		SetCreatedAt(time.Now()).
 		OnConflictColumns(message.FieldMessageID).
 		UpdateNewValues().
 		Exec(context.Background())
