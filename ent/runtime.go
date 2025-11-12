@@ -2,8 +2,21 @@
 
 package ent
 
+import (
+	"time"
+
+	"github.com/liasica/orbit/ent/message"
+	"github.com/liasica/orbit/ent/schema"
+)
+
 // The init function reads all schema descriptors with runtime code
 // (default values, validators, hooks and policies) and stitches it
 // to their package variables.
 func init() {
+	messageFields := schema.Message{}.Fields()
+	_ = messageFields
+	// messageDescCreatedAt is the schema descriptor for created_at field.
+	messageDescCreatedAt := messageFields[3].Descriptor()
+	// message.DefaultCreatedAt holds the default value on creation for the created_at field.
+	message.DefaultCreatedAt = messageDescCreatedAt.Default.(func() time.Time)
 }

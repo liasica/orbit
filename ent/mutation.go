@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"sync"
+	"time"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
@@ -41,6 +42,7 @@ type MessageMutation struct {
 	workitem_id      *string
 	varaibales       *sonic.NoCopyRawMessage
 	appendvaraibales sonic.NoCopyRawMessage
+	created_at       *time.Time
 	clearedFields    map[string]struct{}
 	done             bool
 	oldValue         func(context.Context) (*Message, error)
@@ -281,6 +283,42 @@ func (m *MessageMutation) ResetVaraibales() {
 	m.appendvaraibales = nil
 }
 
+// SetCreatedAt sets the "created_at" field.
+func (m *MessageMutation) SetCreatedAt(t time.Time) {
+	m.created_at = &t
+}
+
+// CreatedAt returns the value of the "created_at" field in the mutation.
+func (m *MessageMutation) CreatedAt() (r time.Time, exists bool) {
+	v := m.created_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreatedAt returns the old "created_at" field's value of the Message entity.
+// If the Message object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *MessageMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
+	}
+	return oldValue.CreatedAt, nil
+}
+
+// ResetCreatedAt resets all changes to the "created_at" field.
+func (m *MessageMutation) ResetCreatedAt() {
+	m.created_at = nil
+}
+
 // Where appends a list predicates to the MessageMutation builder.
 func (m *MessageMutation) Where(ps ...predicate.Message) {
 	m.predicates = append(m.predicates, ps...)
@@ -315,7 +353,7 @@ func (m *MessageMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *MessageMutation) Fields() []string {
-	fields := make([]string, 0, 3)
+	fields := make([]string, 0, 4)
 	if m.message_id != nil {
 		fields = append(fields, message.FieldMessageID)
 	}
@@ -324,6 +362,9 @@ func (m *MessageMutation) Fields() []string {
 	}
 	if m.varaibales != nil {
 		fields = append(fields, message.FieldVaraibales)
+	}
+	if m.created_at != nil {
+		fields = append(fields, message.FieldCreatedAt)
 	}
 	return fields
 }
@@ -339,6 +380,8 @@ func (m *MessageMutation) Field(name string) (ent.Value, bool) {
 		return m.WorkitemID()
 	case message.FieldVaraibales:
 		return m.Varaibales()
+	case message.FieldCreatedAt:
+		return m.CreatedAt()
 	}
 	return nil, false
 }
@@ -354,6 +397,8 @@ func (m *MessageMutation) OldField(ctx context.Context, name string) (ent.Value,
 		return m.OldWorkitemID(ctx)
 	case message.FieldVaraibales:
 		return m.OldVaraibales(ctx)
+	case message.FieldCreatedAt:
+		return m.OldCreatedAt(ctx)
 	}
 	return nil, fmt.Errorf("unknown Message field %s", name)
 }
@@ -383,6 +428,13 @@ func (m *MessageMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetVaraibales(v)
+		return nil
+	case message.FieldCreatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreatedAt(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Message field %s", name)
@@ -450,6 +502,9 @@ func (m *MessageMutation) ResetField(name string) error {
 		return nil
 	case message.FieldVaraibales:
 		m.ResetVaraibales()
+		return nil
+	case message.FieldCreatedAt:
+		m.ResetCreatedAt()
 		return nil
 	}
 	return fmt.Errorf("unknown Message field %s", name)

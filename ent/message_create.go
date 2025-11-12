@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -48,6 +49,20 @@ func (_c *MessageCreate) SetVaraibales(v sonic.NoCopyRawMessage) *MessageCreate 
 	return _c
 }
 
+// SetCreatedAt sets the "created_at" field.
+func (_c *MessageCreate) SetCreatedAt(v time.Time) *MessageCreate {
+	_c.mutation.SetCreatedAt(v)
+	return _c
+}
+
+// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
+func (_c *MessageCreate) SetNillableCreatedAt(v *time.Time) *MessageCreate {
+	if v != nil {
+		_c.SetCreatedAt(*v)
+	}
+	return _c
+}
+
 // Mutation returns the MessageMutation object of the builder.
 func (_c *MessageCreate) Mutation() *MessageMutation {
 	return _c.mutation
@@ -55,6 +70,7 @@ func (_c *MessageCreate) Mutation() *MessageMutation {
 
 // Save creates the Message in the database.
 func (_c *MessageCreate) Save(ctx context.Context) (*Message, error) {
+	_c.defaults()
 	return withHooks(ctx, _c.sqlSave, _c.mutation, _c.hooks)
 }
 
@@ -80,6 +96,14 @@ func (_c *MessageCreate) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (_c *MessageCreate) defaults() {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
+		v := message.DefaultCreatedAt()
+		_c.mutation.SetCreatedAt(v)
+	}
+}
+
 // check runs all checks and user-defined validators on the builder.
 func (_c *MessageCreate) check() error {
 	if _, ok := _c.mutation.MessageID(); !ok {
@@ -87,6 +111,9 @@ func (_c *MessageCreate) check() error {
 	}
 	if _, ok := _c.mutation.Varaibales(); !ok {
 		return &ValidationError{Name: "varaibales", err: errors.New(`ent: missing required field "Message.varaibales"`)}
+	}
+	if _, ok := _c.mutation.CreatedAt(); !ok {
+		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "Message.created_at"`)}
 	}
 	return nil
 }
@@ -126,6 +153,10 @@ func (_c *MessageCreate) createSpec() (*Message, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.Varaibales(); ok {
 		_spec.SetField(message.FieldVaraibales, field.TypeJSON, value)
 		_node.Varaibales = value
+	}
+	if value, ok := _c.mutation.CreatedAt(); ok {
+		_spec.SetField(message.FieldCreatedAt, field.TypeTime, value)
+		_node.CreatedAt = value
 	}
 	return _node, _spec
 }
@@ -231,6 +262,11 @@ func (u *MessageUpsert) UpdateVaraibales() *MessageUpsert {
 //		Exec(ctx)
 func (u *MessageUpsertOne) UpdateNewValues() *MessageUpsertOne {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		if _, exists := u.create.mutation.CreatedAt(); exists {
+			s.SetIgnore(message.FieldCreatedAt)
+		}
+	}))
 	return u
 }
 
@@ -362,6 +398,7 @@ func (_c *MessageCreateBulk) Save(ctx context.Context) ([]*Message, error) {
 	for i := range _c.builders {
 		func(i int, root context.Context) {
 			builder := _c.builders[i]
+			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*MessageMutation)
 				if !ok {
@@ -483,6 +520,13 @@ type MessageUpsertBulk struct {
 //		Exec(ctx)
 func (u *MessageUpsertBulk) UpdateNewValues() *MessageUpsertBulk {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		for _, b := range u.create.builders {
+			if _, exists := b.mutation.CreatedAt(); exists {
+				s.SetIgnore(message.FieldCreatedAt)
+			}
+		}
+	}))
 	return u
 }
 

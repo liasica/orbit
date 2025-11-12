@@ -1,6 +1,8 @@
 package schema
 
 import (
+	"time"
+
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/entsql"
 	"entgo.io/ent/schema"
@@ -28,6 +30,7 @@ func (Message) Fields() []ent.Field {
 		field.String("message_id").Unique().Comment("消息ID"),
 		field.String("workitem_id").Optional().Nillable().Comment("工作项ID"),
 		field.JSON("varaibales", sonic.NoCopyRawMessage{}).Comment("消息变量"),
+		field.Time("created_at").Default(time.Now).Immutable(),
 	}
 }
 
@@ -39,5 +42,6 @@ func (Message) Edges() []ent.Edge {
 func (Message) Indexes() []ent.Index {
 	return []ent.Index{
 		index.Fields("workitem_id"),
+		index.Fields("created_at"),
 	}
 }

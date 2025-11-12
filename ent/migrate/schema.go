@@ -15,6 +15,7 @@ var (
 		{Name: "message_id", Type: field.TypeString, Unique: true, Comment: "消息ID"},
 		{Name: "workitem_id", Type: field.TypeString, Nullable: true, Comment: "工作项ID"},
 		{Name: "varaibales", Type: field.TypeJSON, Comment: "消息变量"},
+		{Name: "created_at", Type: field.TypeTime},
 	}
 	// MessageTable holds the schema information for the "message" table.
 	MessageTable = &schema.Table{
@@ -26,6 +27,11 @@ var (
 				Name:    "message_workitem_id",
 				Unique:  false,
 				Columns: []*schema.Column{MessageColumns[2]},
+			},
+			{
+				Name:    "message_created_at",
+				Unique:  false,
+				Columns: []*schema.Column{MessageColumns[4]},
 			},
 		},
 	}
