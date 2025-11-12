@@ -28,6 +28,7 @@ func (Message) Annotations() []schema.Annotation {
 func (Message) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("message_id").Unique().Comment("消息ID"),
+		field.Enum("type").Values("underReview", "job", "reviewed").Comment("消息类型"),
 		field.String("workitem_id").Optional().Nillable().Comment("工作项ID"),
 		field.JSON("varaibales", sonic.NoCopyRawMessage{}).Comment("消息变量"),
 		field.Time("created_at").Default(time.Now).Immutable(),

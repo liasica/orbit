@@ -39,6 +39,7 @@ type MessageMutation struct {
 	typ              string
 	id               *int
 	message_id       *string
+	_type            *message.Type
 	workitem_id      *string
 	varaibales       *sonic.NoCopyRawMessage
 	appendvaraibales sonic.NoCopyRawMessage
@@ -181,6 +182,42 @@ func (m *MessageMutation) OldMessageID(ctx context.Context) (v string, err error
 // ResetMessageID resets all changes to the "message_id" field.
 func (m *MessageMutation) ResetMessageID() {
 	m.message_id = nil
+}
+
+// SetType sets the "type" field.
+func (m *MessageMutation) SetType(value message.Type) {
+	m._type = &value
+}
+
+// GetType returns the value of the "type" field in the mutation.
+func (m *MessageMutation) GetType() (r message.Type, exists bool) {
+	v := m._type
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldType returns the old "type" field's value of the Message entity.
+// If the Message object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *MessageMutation) OldType(ctx context.Context) (v message.Type, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldType is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldType requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldType: %w", err)
+	}
+	return oldValue.Type, nil
+}
+
+// ResetType resets all changes to the "type" field.
+func (m *MessageMutation) ResetType() {
+	m._type = nil
 }
 
 // SetWorkitemID sets the "workitem_id" field.
@@ -353,9 +390,12 @@ func (m *MessageMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *MessageMutation) Fields() []string {
-	fields := make([]string, 0, 4)
+	fields := make([]string, 0, 5)
 	if m.message_id != nil {
 		fields = append(fields, message.FieldMessageID)
+	}
+	if m._type != nil {
+		fields = append(fields, message.FieldType)
 	}
 	if m.workitem_id != nil {
 		fields = append(fields, message.FieldWorkitemID)
@@ -376,6 +416,8 @@ func (m *MessageMutation) Field(name string) (ent.Value, bool) {
 	switch name {
 	case message.FieldMessageID:
 		return m.MessageID()
+	case message.FieldType:
+		return m.GetType()
 	case message.FieldWorkitemID:
 		return m.WorkitemID()
 	case message.FieldVaraibales:
@@ -393,6 +435,8 @@ func (m *MessageMutation) OldField(ctx context.Context, name string) (ent.Value,
 	switch name {
 	case message.FieldMessageID:
 		return m.OldMessageID(ctx)
+	case message.FieldType:
+		return m.OldType(ctx)
 	case message.FieldWorkitemID:
 		return m.OldWorkitemID(ctx)
 	case message.FieldVaraibales:
@@ -414,6 +458,13 @@ func (m *MessageMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetMessageID(v)
+		return nil
+	case message.FieldType:
+		v, ok := value.(message.Type)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetType(v)
 		return nil
 	case message.FieldWorkitemID:
 		v, ok := value.(string)
@@ -496,6 +547,9 @@ func (m *MessageMutation) ResetField(name string) error {
 	switch name {
 	case message.FieldMessageID:
 		m.ResetMessageID()
+		return nil
+	case message.FieldType:
+		m.ResetType()
 		return nil
 	case message.FieldWorkitemID:
 		m.ResetWorkitemID()

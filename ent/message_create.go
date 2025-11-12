@@ -29,6 +29,12 @@ func (_c *MessageCreate) SetMessageID(v string) *MessageCreate {
 	return _c
 }
 
+// SetType sets the "type" field.
+func (_c *MessageCreate) SetType(v message.Type) *MessageCreate {
+	_c.mutation.SetType(v)
+	return _c
+}
+
 // SetWorkitemID sets the "workitem_id" field.
 func (_c *MessageCreate) SetWorkitemID(v string) *MessageCreate {
 	_c.mutation.SetWorkitemID(v)
@@ -109,6 +115,14 @@ func (_c *MessageCreate) check() error {
 	if _, ok := _c.mutation.MessageID(); !ok {
 		return &ValidationError{Name: "message_id", err: errors.New(`ent: missing required field "Message.message_id"`)}
 	}
+	if _, ok := _c.mutation.GetType(); !ok {
+		return &ValidationError{Name: "type", err: errors.New(`ent: missing required field "Message.type"`)}
+	}
+	if v, ok := _c.mutation.GetType(); ok {
+		if err := message.TypeValidator(v); err != nil {
+			return &ValidationError{Name: "type", err: fmt.Errorf(`ent: validator failed for field "Message.type": %w`, err)}
+		}
+	}
 	if _, ok := _c.mutation.Varaibales(); !ok {
 		return &ValidationError{Name: "varaibales", err: errors.New(`ent: missing required field "Message.varaibales"`)}
 	}
@@ -145,6 +159,10 @@ func (_c *MessageCreate) createSpec() (*Message, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.MessageID(); ok {
 		_spec.SetField(message.FieldMessageID, field.TypeString, value)
 		_node.MessageID = value
+	}
+	if value, ok := _c.mutation.GetType(); ok {
+		_spec.SetField(message.FieldType, field.TypeEnum, value)
+		_node.Type = value
 	}
 	if value, ok := _c.mutation.WorkitemID(); ok {
 		_spec.SetField(message.FieldWorkitemID, field.TypeString, value)
@@ -219,6 +237,18 @@ func (u *MessageUpsert) SetMessageID(v string) *MessageUpsert {
 // UpdateMessageID sets the "message_id" field to the value that was provided on create.
 func (u *MessageUpsert) UpdateMessageID() *MessageUpsert {
 	u.SetExcluded(message.FieldMessageID)
+	return u
+}
+
+// SetType sets the "type" field.
+func (u *MessageUpsert) SetType(v message.Type) *MessageUpsert {
+	u.Set(message.FieldType, v)
+	return u
+}
+
+// UpdateType sets the "type" field to the value that was provided on create.
+func (u *MessageUpsert) UpdateType() *MessageUpsert {
+	u.SetExcluded(message.FieldType)
 	return u
 }
 
@@ -308,6 +338,20 @@ func (u *MessageUpsertOne) SetMessageID(v string) *MessageUpsertOne {
 func (u *MessageUpsertOne) UpdateMessageID() *MessageUpsertOne {
 	return u.Update(func(s *MessageUpsert) {
 		s.UpdateMessageID()
+	})
+}
+
+// SetType sets the "type" field.
+func (u *MessageUpsertOne) SetType(v message.Type) *MessageUpsertOne {
+	return u.Update(func(s *MessageUpsert) {
+		s.SetType(v)
+	})
+}
+
+// UpdateType sets the "type" field to the value that was provided on create.
+func (u *MessageUpsertOne) UpdateType() *MessageUpsertOne {
+	return u.Update(func(s *MessageUpsert) {
+		s.UpdateType()
 	})
 }
 
@@ -568,6 +612,20 @@ func (u *MessageUpsertBulk) SetMessageID(v string) *MessageUpsertBulk {
 func (u *MessageUpsertBulk) UpdateMessageID() *MessageUpsertBulk {
 	return u.Update(func(s *MessageUpsert) {
 		s.UpdateMessageID()
+	})
+}
+
+// SetType sets the "type" field.
+func (u *MessageUpsertBulk) SetType(v message.Type) *MessageUpsertBulk {
+	return u.Update(func(s *MessageUpsert) {
+		s.SetType(v)
+	})
+}
+
+// UpdateType sets the "type" field to the value that was provided on create.
+func (u *MessageUpsertBulk) UpdateType() *MessageUpsertBulk {
+	return u.Update(func(s *MessageUpsert) {
+		s.UpdateType()
 	})
 }
 

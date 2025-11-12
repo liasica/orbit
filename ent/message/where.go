@@ -134,6 +134,26 @@ func MessageIDContainsFold(v string) predicate.Message {
 	return predicate.Message(sql.FieldContainsFold(FieldMessageID, v))
 }
 
+// TypeEQ applies the EQ predicate on the "type" field.
+func TypeEQ(v Type) predicate.Message {
+	return predicate.Message(sql.FieldEQ(FieldType, v))
+}
+
+// TypeNEQ applies the NEQ predicate on the "type" field.
+func TypeNEQ(v Type) predicate.Message {
+	return predicate.Message(sql.FieldNEQ(FieldType, v))
+}
+
+// TypeIn applies the In predicate on the "type" field.
+func TypeIn(vs ...Type) predicate.Message {
+	return predicate.Message(sql.FieldIn(FieldType, vs...))
+}
+
+// TypeNotIn applies the NotIn predicate on the "type" field.
+func TypeNotIn(vs ...Type) predicate.Message {
+	return predicate.Message(sql.FieldNotIn(FieldType, vs...))
+}
+
 // WorkitemIDEQ applies the EQ predicate on the "workitem_id" field.
 func WorkitemIDEQ(v string) predicate.Message {
 	return predicate.Message(sql.FieldEQ(FieldWorkitemID, v))

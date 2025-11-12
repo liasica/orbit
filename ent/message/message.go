@@ -3,6 +3,7 @@
 package message
 
 import (
+	"fmt"
 	"time"
 
 	"entgo.io/ent/dialect/sql"
@@ -15,6 +16,8 @@ const (
 	FieldID = "id"
 	// FieldMessageID holds the string denoting the message_id field in the database.
 	FieldMessageID = "message_id"
+	// FieldType holds the string denoting the type field in the database.
+	FieldType = "type"
 	// FieldWorkitemID holds the string denoting the workitem_id field in the database.
 	FieldWorkitemID = "workitem_id"
 	// FieldVaraibales holds the string denoting the varaibales field in the database.
@@ -29,6 +32,7 @@ const (
 var Columns = []string{
 	FieldID,
 	FieldMessageID,
+	FieldType,
 	FieldWorkitemID,
 	FieldVaraibales,
 	FieldCreatedAt,
@@ -49,6 +53,30 @@ var (
 	DefaultCreatedAt func() time.Time
 )
 
+// Type defines the type for the "type" enum field.
+type Type string
+
+// Type values.
+const (
+	TypeUnderReview Type = "underReview"
+	TypeJob         Type = "job"
+	TypeReviewed    Type = "reviewed"
+)
+
+func (_type Type) String() string {
+	return string(_type)
+}
+
+// TypeValidator is a validator for the "type" field enum values. It is called by the builders before save.
+func TypeValidator(_type Type) error {
+	switch _type {
+	case TypeUnderReview, TypeJob, TypeReviewed:
+		return nil
+	default:
+		return fmt.Errorf("message: invalid enum value for type field: %q", _type)
+	}
+}
+
 // OrderOption defines the ordering options for the Message queries.
 type OrderOption func(*sql.Selector)
 
@@ -60,6 +88,11 @@ func ByID(opts ...sql.OrderTermOption) OrderOption {
 // ByMessageID orders the results by the message_id field.
 func ByMessageID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldMessageID, opts...).ToFunc()
+}
+
+// ByType orders the results by the type field.
+func ByType(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldType, opts...).ToFunc()
 }
 
 // ByWorkitemID orders the results by the workitem_id field.

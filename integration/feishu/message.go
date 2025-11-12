@@ -10,8 +10,12 @@ import (
 	"github.com/bytedance/sonic"
 	"github.com/google/uuid"
 	larkcore "github.com/larksuite/oapi-sdk-go/v3/core"
+	"github.com/larksuite/oapi-sdk-go/v3/event/dispatcher/callback"
 	v1 "github.com/larksuite/oapi-sdk-go/v3/service/im/v1"
 )
+
+// TODO: 发送仅特定人可见的消息卡片
+// https://open.feishu.cn/document/server-docs/im-v1/message-card/send-message-cards-that-are-only-visible-to-certain-people
 
 // ReceiveIdType 接收者类型
 // open_id/user_id/union_id/email/chat_id
@@ -74,12 +78,6 @@ func CreateInteractiveMessageReq[T any](templateId string, receiveIdType Receive
 		Build()
 }
 
-// SendMessage 发送消息
-func SendMessage(ctx context.Context, req *v1.CreateMessageReq, options ...larkcore.RequestOptionFunc) (*v1.CreateMessageResp, error) {
-	resp, err := instance.client.Im.V1.Message.Create(ctx, req, options...)
-	return resp, err
-}
-
 // ApkMessage apk发包消息模板变量
 // https://open.feishu.cn/cardkit/editor?cardId=AAqhHKY2IV0xD
 type ApkMessage struct {
@@ -89,17 +87,6 @@ type ApkMessage struct {
 	Intranet string `json:"INTRANET,omitempty"`
 	Extranet string `json:"EXTRANET,omitempty"`
 	Version  string `json:"VERSION,omitempty"`
-}
-
-// ReviewedMessage 已审查消息模板变量
-// https://open.feishu.cn/cardkit/editor?cardId=AAqhD4KzLB1l1
-type ReviewedMessage struct {
-	ID            string                  `json:"ID,omitempty"`
-	Title         string                  `json:"TITLE,omitempty"`
-	Category      string                  `json:"CATEGORY,omitempty"`
-	Url           string                  `json:"URL,omitempty"`
-	ReviewedUsers []*MessageUserVaraibale `json:"REVIEWED_USERS,omitempty"`
-	ReviewedTime  string                  `json:"REVIEWED_TIME,omitempty"`
 }
 
 // UnderReviewMessage 待审查消息模板变量
@@ -114,6 +101,17 @@ type UnderReviewMessage struct {
 	Url         string `json:"URL,omitempty"`
 }
 
+// ReviewedMessage 已审查消息模板变量
+// https://open.feishu.cn/cardkit/editor?cardId=AAqhD4KzLB1l1
+type ReviewedMessage struct {
+	ID            string                  `json:"ID,omitempty"`
+	Title         string                  `json:"TITLE,omitempty"`
+	Category      string                  `json:"CATEGORY,omitempty"`
+	Url           string                  `json:"URL,omitempty"`
+	ReviewedUsers []*MessageUserVaraibale `json:"REVIEWED_USERS,omitempty"`
+	ReviewedTime  string                  `json:"REVIEWED_TIME,omitempty"`
+}
+
 // JobMessage 新工作消息模板
 // https://open.feishu.cn/cardkit/editor?cardId=AAqhj54SE7sTh
 type JobMessage struct {
@@ -125,4 +123,21 @@ type JobMessage struct {
 	Url         string                 `json:"URL,omitempty"`
 	Icon        *MessageImageVaraibale `json:"ICON,omitempty"`
 	Status      string                 `json:"STATUS,omitempty"`
+}
+
+// SendMessage 发送消息
+func SendMessage(ctx context.Context, req *v1.CreateMessageReq, options ...larkcore.RequestOptionFunc) (*v1.CreateMessageResp, error) {
+	resp, err := instance.client.Im.V1.Message.Create(ctx, req, options...)
+	return resp, err
+}
+
+// PatchCardMessage 更新已发送的消息卡片
+func PatchCardMessage(ctx context.Context, messageId string, card *callback.Card) (*v1.PatchMessageResp, error) {
+	s, err := sonic.MarshalString(card)
+	if err != nil {
+		return nil, err
+	}
+
+	req := v1.NewPatchMessageReqBuilder().MessageId(messageId).Body(&v1.PatchMessageReqBody{Content: &s}).Build()
+	return instance.client.Im.V1.Message.Patch(ctx, req)
 }

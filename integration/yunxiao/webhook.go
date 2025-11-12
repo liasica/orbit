@@ -15,6 +15,7 @@ const (
 	HookActionWorkitemCreated       = "workitem_created"
 	HookActionWorkitemStatusChanged = "workitem_status_changed"
 	HookActionWorkitemUnderReview   = "workitem_under_review"
+	HookActionWorkitemReviewed      = "workitem_reviewed"
 )
 
 type WebhookWorkitemIdentifier struct {

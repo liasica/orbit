@@ -31,7 +31,7 @@ func NewFeishu() *FeishuService {
 }
 
 // SaveMessage 保存飞书消息记录
-func (s *FeishuService) SaveMessage(resp *v1.CreateMessageResp, workitemId *string, req any) {
+func (s *FeishuService) SaveMessage(resp *v1.CreateMessageResp, workitemId *string, req any, typ message.Type) {
 	if resp == nil || resp.Err != nil || resp.Data == nil {
 		log.Error().Msg("飞书消息响应数据为空，无法保存消息记录")
 		return
@@ -44,6 +44,7 @@ func (s *FeishuService) SaveMessage(resp *v1.CreateMessageResp, workitemId *stri
 		SetNillableWorkitemID(workitemId).
 		SetVaraibales(b).
 		SetCreatedAt(time.Now()).
+		SetType(typ).
 		OnConflictColumns(message.FieldMessageID).
 		UpdateNewValues().
 		Exec(context.Background())
@@ -106,7 +107,7 @@ func (s *FeishuService) SendUnderReviewMessage(req *model.FeishuSendUnderReviewM
 	}
 
 	// 保存消息记录
-	s.SaveMessage(resp, &req.ID, req)
+	s.SaveMessage(resp, &req.ID, req, message.TypeUnderReview)
 }
 
 // SendJobMessage 发送新工作消息
@@ -136,7 +137,7 @@ func (s *FeishuService) SendJobMessage(req *model.FeishuSendJobMessageRequest) {
 	}
 
 	// 保存消息记录
-	s.SaveMessage(resp, &req.ID, req)
+	s.SaveMessage(resp, &req.ID, req, message.TypeJob)
 }
 
 // HookCardActionTrigger 飞书卡片操作触发事件处理

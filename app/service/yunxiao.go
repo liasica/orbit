@@ -9,8 +9,10 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/bytedance/sonic"
+	"github.com/larksuite/oapi-sdk-go/v3/event/dispatcher/callback"
 	"github.com/rs/zerolog/log"
 	git "gitlab.com/gitlab-org/api/client-go"
 
@@ -18,6 +20,7 @@ import (
 	"github.com/liasica/orbit/config"
 	"github.com/liasica/orbit/config/yc"
 	"github.com/liasica/orbit/ent"
+	"github.com/liasica/orbit/ent/message"
 	"github.com/liasica/orbit/ent/user"
 	"github.com/liasica/orbit/integration/feishu"
 	"github.com/liasica/orbit/integration/gitlab"
@@ -73,6 +76,7 @@ func (s *YunxiaoService) GetUserFromWorkitemCustomFieldValues(workitem *entity.W
 	return s.GetUsers(ids...)
 }
 
+// GetUsers 根据云效用户ID获取用户列表
 func (s *YunxiaoService) GetUsers(ids ...string) (users []*ent.User) {
 	users, _ = ent.Database.User.Query().Where(user.YunxiaoUserIDIn(ids...)).All(context.Background())
 	return
@@ -120,6 +124,8 @@ func (s *YunxiaoService) Webhook(headers http.Header, body []byte) {
 		s.hookActionWorkitemStatusChanged(headers, workitem)
 	case yunxiao.HookActionWorkitemUnderReview:
 		s.hookActionWorkitemUnderReview(headers, workitem)
+	case yunxiao.HookActionWorkitemReviewed:
+		s.hookActionWorkitemReviewed(headers, workitem)
 	default:
 		log.Warn().Msgf("未知的 action 类型: %s", action)
 	}
@@ -275,6 +281,65 @@ func (s *YunxiaoService) hookActionWorkitemUnderReview(_ http.Header, workitem *
 		ReviewUsers: strings.Join(userIds, ","),
 		Url:         fmt.Sprintf("https://devops.aliyun.com/projex/bug/%s", workitem.SerialNumber),
 	})
+}
+
+// 处理已审查工作项
+func (s *YunxiaoService) hookActionWorkitemReviewed(_ http.Header, workitem *entity.Workitem) {
+	// TODO: 更新已发送的消息卡片
+	// https://open.feishu.cn/document/server-docs/im-v1/message-card/patch?appId=cli_a701f0e47075100d
+
+	ctx := context.Background()
+
+	// 查询卡片
+	em, _ := ent.Database.Message.Query().Where(message.TypeEQ(message.TypeUnderReview), message.WorkitemID(workitem.SerialNumber)).First(ctx)
+	if em == nil {
+		log.Warn().Msgf("未找到工作项 %s 的待审查消息记录，跳过更新卡片", workitem.SerialNumber)
+		return
+	}
+
+	// 获取修改人
+	var users []*ent.User
+	if workitem.Modifier != nil {
+		users = s.GetUsers(workitem.Modifier.ID)
+	}
+	if len(users) == 0 {
+		users = s.GetUserFromWorkitemCustomFieldValues(workitem, yc.FieldReviewUser)
+	}
+
+	reviewedUsers := make([]*feishu.MessageUserVaraibale, len(users))
+	for i, u := range users {
+		reviewedUsers[i] = &feishu.MessageUserVaraibale{
+			ID: u.LarkUserID,
+		}
+	}
+
+	t := time.Now()
+	if workitem.GmtModified > 0 {
+		t = time.UnixMilli(workitem.GmtModified)
+	}
+
+	// 更新卡片
+	_, err := feishu.PatchCardMessage(ctx, em.MessageID, &callback.Card{
+		Type: "template",
+		Data: &feishu.InteractiveTemplateMessageData[feishu.ReviewedMessage]{
+			TemplateId: config.Get().Feishu.Message.Reviewed.TemplateId,
+			TemplateVariable: &feishu.ReviewedMessage{
+				ID:            workitem.SerialNumber,
+				Title:         workitem.Subject,
+				Category:      workitem.CategoryID.Text(),
+				Url:           fmt.Sprintf("https://devops.aliyun.com/projex/bug/%s", workitem.SerialNumber),
+				ReviewedUsers: reviewedUsers,
+				ReviewedTime:  t.Format(time.DateTime),
+			},
+		},
+	})
+	if err != nil {
+		log.Error().Err(err).Msgf("更新工作项 %s 已审查卡片失败", workitem.SerialNumber)
+		return
+	}
+
+	// 更新数据库
+	_, err = ent.Database.Message.UpdateOne(em).SetType(message.TypeReviewed).Save(ctx)
 }
 
 // UpdateStatusByID 更新工作项状态

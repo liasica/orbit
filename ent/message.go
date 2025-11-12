@@ -21,6 +21,8 @@ type Message struct {
 	ID int `json:"id,omitempty"`
 	// 消息ID
 	MessageID string `json:"message_id,omitempty"`
+	// 消息类型
+	Type message.Type `json:"type,omitempty"`
 	// 工作项ID
 	WorkitemID *string `json:"workitem_id,omitempty"`
 	// 消息变量
@@ -39,7 +41,7 @@ func (*Message) scanValues(columns []string) ([]any, error) {
 			values[i] = new([]byte)
 		case message.FieldID:
 			values[i] = new(sql.NullInt64)
-		case message.FieldMessageID, message.FieldWorkitemID:
+		case message.FieldMessageID, message.FieldType, message.FieldWorkitemID:
 			values[i] = new(sql.NullString)
 		case message.FieldCreatedAt:
 			values[i] = new(sql.NullTime)
@@ -69,6 +71,12 @@ func (_m *Message) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field message_id", values[i])
 			} else if value.Valid {
 				_m.MessageID = value.String
+			}
+		case message.FieldType:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field type", values[i])
+			} else if value.Valid {
+				_m.Type = message.Type(value.String)
 			}
 		case message.FieldWorkitemID:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -129,6 +137,9 @@ func (_m *Message) String() string {
 	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
 	builder.WriteString("message_id=")
 	builder.WriteString(_m.MessageID)
+	builder.WriteString(", ")
+	builder.WriteString("type=")
+	builder.WriteString(fmt.Sprintf("%v", _m.Type))
 	builder.WriteString(", ")
 	if v := _m.WorkitemID; v != nil {
 		builder.WriteString("workitem_id=")

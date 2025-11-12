@@ -43,6 +43,20 @@ func (_u *MessageUpdate) SetNillableMessageID(v *string) *MessageUpdate {
 	return _u
 }
 
+// SetType sets the "type" field.
+func (_u *MessageUpdate) SetType(v message.Type) *MessageUpdate {
+	_u.mutation.SetType(v)
+	return _u
+}
+
+// SetNillableType sets the "type" field if the given value is not nil.
+func (_u *MessageUpdate) SetNillableType(v *message.Type) *MessageUpdate {
+	if v != nil {
+		_u.SetType(*v)
+	}
+	return _u
+}
+
 // SetWorkitemID sets the "workitem_id" field.
 func (_u *MessageUpdate) SetWorkitemID(v string) *MessageUpdate {
 	_u.mutation.SetWorkitemID(v)
@@ -107,7 +121,20 @@ func (_u *MessageUpdate) ExecX(ctx context.Context) {
 	}
 }
 
+// check runs all checks and user-defined validators on the builder.
+func (_u *MessageUpdate) check() error {
+	if v, ok := _u.mutation.GetType(); ok {
+		if err := message.TypeValidator(v); err != nil {
+			return &ValidationError{Name: "type", err: fmt.Errorf(`ent: validator failed for field "Message.type": %w`, err)}
+		}
+	}
+	return nil
+}
+
 func (_u *MessageUpdate) sqlSave(ctx context.Context) (_node int, err error) {
+	if err := _u.check(); err != nil {
+		return _node, err
+	}
 	_spec := sqlgraph.NewUpdateSpec(message.Table, message.Columns, sqlgraph.NewFieldSpec(message.FieldID, field.TypeInt))
 	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
@@ -118,6 +145,9 @@ func (_u *MessageUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if value, ok := _u.mutation.MessageID(); ok {
 		_spec.SetField(message.FieldMessageID, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.GetType(); ok {
+		_spec.SetField(message.FieldType, field.TypeEnum, value)
 	}
 	if value, ok := _u.mutation.WorkitemID(); ok {
 		_spec.SetField(message.FieldWorkitemID, field.TypeString, value)
@@ -163,6 +193,20 @@ func (_u *MessageUpdateOne) SetMessageID(v string) *MessageUpdateOne {
 func (_u *MessageUpdateOne) SetNillableMessageID(v *string) *MessageUpdateOne {
 	if v != nil {
 		_u.SetMessageID(*v)
+	}
+	return _u
+}
+
+// SetType sets the "type" field.
+func (_u *MessageUpdateOne) SetType(v message.Type) *MessageUpdateOne {
+	_u.mutation.SetType(v)
+	return _u
+}
+
+// SetNillableType sets the "type" field if the given value is not nil.
+func (_u *MessageUpdateOne) SetNillableType(v *message.Type) *MessageUpdateOne {
+	if v != nil {
+		_u.SetType(*v)
 	}
 	return _u
 }
@@ -244,7 +288,20 @@ func (_u *MessageUpdateOne) ExecX(ctx context.Context) {
 	}
 }
 
+// check runs all checks and user-defined validators on the builder.
+func (_u *MessageUpdateOne) check() error {
+	if v, ok := _u.mutation.GetType(); ok {
+		if err := message.TypeValidator(v); err != nil {
+			return &ValidationError{Name: "type", err: fmt.Errorf(`ent: validator failed for field "Message.type": %w`, err)}
+		}
+	}
+	return nil
+}
+
 func (_u *MessageUpdateOne) sqlSave(ctx context.Context) (_node *Message, err error) {
+	if err := _u.check(); err != nil {
+		return _node, err
+	}
 	_spec := sqlgraph.NewUpdateSpec(message.Table, message.Columns, sqlgraph.NewFieldSpec(message.FieldID, field.TypeInt))
 	id, ok := _u.mutation.ID()
 	if !ok {
@@ -272,6 +329,9 @@ func (_u *MessageUpdateOne) sqlSave(ctx context.Context) (_node *Message, err er
 	}
 	if value, ok := _u.mutation.MessageID(); ok {
 		_spec.SetField(message.FieldMessageID, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.GetType(); ok {
+		_spec.SetField(message.FieldType, field.TypeEnum, value)
 	}
 	if value, ok := _u.mutation.WorkitemID(); ok {
 		_spec.SetField(message.FieldWorkitemID, field.TypeString, value)

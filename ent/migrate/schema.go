@@ -13,6 +13,7 @@ var (
 	MessageColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "message_id", Type: field.TypeString, Unique: true, Comment: "消息ID"},
+		{Name: "type", Type: field.TypeEnum, Comment: "消息类型", Enums: []string{"underReview", "job", "reviewed"}},
 		{Name: "workitem_id", Type: field.TypeString, Nullable: true, Comment: "工作项ID"},
 		{Name: "varaibales", Type: field.TypeJSON, Comment: "消息变量"},
 		{Name: "created_at", Type: field.TypeTime},
@@ -26,12 +27,12 @@ var (
 			{
 				Name:    "message_workitem_id",
 				Unique:  false,
-				Columns: []*schema.Column{MessageColumns[2]},
+				Columns: []*schema.Column{MessageColumns[3]},
 			},
 			{
 				Name:    "message_created_at",
 				Unique:  false,
-				Columns: []*schema.Column{MessageColumns[4]},
+				Columns: []*schema.Column{MessageColumns[5]},
 			},
 		},
 	}
